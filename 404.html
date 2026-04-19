@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Page not found — Massino's Pizzeria, Denver CO." />
+  <title>404 | Massino's Pizzeria</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700;1,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    .not-found-pizza {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      display: block;
+      animation: float-pizza 3s ease-in-out infinite;
+    }
+    @keyframes float-pizza {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+    .not-found-divider {
+      width: 60px;
+      height: 2px;
+      background: var(--ember);
+      margin: 1.5rem auto;
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- Ticker -->
+<div class="ticker-wrapper">
+  <div class="ticker-track">
+    <span class="ticker-item">Open Daily 11AM–8:30PM <span>·</span></span>
+    <span class="ticker-item">7531 E Iliff Ave, Denver <span>·</span></span>
+    <span class="ticker-item">Call (720) 532-8816 <span>·</span></span>
+    <span class="ticker-item">Authentic NY-Style Pizza <span>·</span></span>
+    <span class="ticker-item">Online Ordering Available <span>·</span></span>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav scrolled" style="top:0;">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-badge">M</div>
+      <div class="logo-text">
+        <span class="logo-name">Massino's</span>
+        <span class="logo-sub">Pizzeria</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="about.html#location">Location</a></li>
+      <li><a href="catering.html">Catering</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <a href="https://massinospizzailiff.com" target="_blank" rel="noopener" class="btn btn-primary nav-cta">Order Now</a>
+    <button class="hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="nav-drawer">
+  <a href="menu.html">Menu</a>
+  <a href="about.html#location">Location</a>
+  <a href="catering.html">Catering</a>
+  <a href="about.html">About</a>
+  <a href="https://massinospizzailiff.com" target="_blank" rel="noopener" class="btn btn-primary mt-4">Order Now</a>
+</div>
+
+<!-- 404 Content -->
+<main class="not-found" role="main">
+  <div class="not-found-content">
+    <span class="not-found-pizza hero-animate" aria-hidden="true">🍕</span>
+    <div class="not-found-number hero-animate">404</div>
+    <h2 class="hero-animate">Looks like this slice got lost.</h2>
+    <div class="not-found-divider hero-animate" aria-hidden="true"></div>
+    <p class="hero-animate">The page you're looking for doesn't exist — but great pizza is just one click away.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;" class="hero-animate">
+      <a href="index.html" class="btn btn-primary">Back to Home</a>
+      <a href="menu.html" class="btn btn-ghost">View Our Menu</a>
+    </div>
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;" class="hero-animate">
+      <a href="tel:+17205328816" style="font-size:0.82rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
+        📞 (720) 532-8816
+      </a>
+      <span style="color:var(--border);">|</span>
+      <a href="about.html#location" style="font-size:0.82rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:0.5rem;">
+        📍 7531 E Iliff Ave, Denver
+      </a>
+      <span style="color:var(--border);">|</span>
+      <span style="font-size:0.82rem;color:var(--muted);display:flex;align-items:center;gap:0.5rem;">
+        🕐 Open Daily 11AM–8:30PM
+      </span>
+    </div>
+  </div>
+</main>
+
+<script src="main.js"></script>
+</body>
+</html>
