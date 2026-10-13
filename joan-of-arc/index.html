@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Joan of Arc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cormorant+Garamond:wght@600;700&display=swap">
+<style>
+/* Layout concept: each slide is a painted scene in three depths.
+   Back: the artwork with the figure removed, blurred and slowly drifting.
+   Middle: the cut-out figure, breathing, tilting with the pointer, with a glint sliding over the armor.
+   Front: petals, embers and soft bokeh moving faster than everything else. Text sits on a dark glass panel. */
+:root {
+  --ink: #070b18;
+  --gold: #f2b84b;
+  --banner: #3b5bdb;
+  --linen: #eef1f8;
+  --muted: #b9c3da;
+  --panel: rgba(6, 10, 24, 0.68);
+  --line: rgba(242, 184, 75, 0.5);
+  --display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --body: 'Alegreya Sans', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; overflow: hidden; background: var(--ink); color: var(--linen); font-family: var(--body); }
+* { box-sizing: border-box; }
+#app { position: fixed; inset: 0; }
+
+/* ---------- back: scenery ---------- */
+#world { position: absolute; inset: 0; overflow: hidden; background: var(--ink); }
+.bd {
+  position: absolute; inset: -5%; opacity: 0; visibility: hidden; will-change: transform; transform-origin: var(--org, 50% 50%);
+  transition: opacity 1.3s ease, visibility 0s linear 1.3s;
+  transform: translate3d(calc(var(--mx, 0) * -12px), calc(var(--my, 0) * -7px), 0) scale(var(--s, 1.1));
+}
+.bd.on { opacity: 1; visibility: visible; transition-delay: 0s; }
+.bd i {
+  position: absolute; inset: 0; display: block;
+  background: var(--img) var(--pos, 50% 50%) / cover no-repeat;
+  filter: blur(var(--blur, 4px)) brightness(var(--br, 0.7)) saturate(var(--sat, 1));
+  animation: kb 30s ease-in-out infinite alternate;
+}
+.bd::after { content: ''; position: absolute; inset: 0; background: var(--tint, transparent); mix-blend-mode: var(--blend, soft-light); }
+@keyframes kb { from { transform: scale(1) translate3d(0, 0, 0); } to { transform: scale(1.09) translate3d(-1.2%, -0.8%, 0); } }
+.rays {
+  position: absolute; inset: -40%; opacity: 0.15; mix-blend-mode: screen; pointer-events: none; animation: spin 140s linear infinite;
+  background: repeating-conic-gradient(from 0deg at 78% 18%, rgba(255, 214, 140, 0) 0deg 6deg, rgba(255, 214, 140, 0.2) 8deg 10deg, rgba(255, 214, 140, 0) 12deg 21deg);
+  -webkit-mask-image: radial-gradient(circle at 78% 18%, #000 0%, transparent 60%); mask-image: radial-gradient(circle at 78% 18%, #000 0%, transparent 60%);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.grade {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 65% 40%, rgba(3, 5, 12, 0) 40%, rgba(3, 5, 12, 0.65) 100%),
+    linear-gradient(90deg, rgba(4, 7, 18, 0.8) 0%, rgba(4, 7, 18, 0.45) 42%, rgba(4, 7, 18, 0) 72%);
+}
+.grain {
+  position: absolute; inset: -10%; pointer-events: none; opacity: 0.06; mix-blend-mode: overlay; animation: grain 0.9s steps(6) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes grain { 0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); } 60% { transform: translate(-2%, -2%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); } }
+
+/* ---------- middle: slides and figures ---------- */
+#deck { position: absolute; inset: 0; z-index: 2; }
+.slide {
+  position: absolute; inset: 0; display: flex; overflow-y: auto; overflow-x: hidden;
+  padding: 24px clamp(16px, 8vw, 120px) 96px;
+  opacity: 0; visibility: hidden; transform: translateX(5vw);
+  transition: opacity 0.8s ease, transform 1s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 1s;
+}
+.slide.past { transform: translateX(-5vw); }
+.slide.active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.panel {
+  position: relative; z-index: 2; margin-block: auto; margin-inline-end: auto; width: 100%; max-width: 44rem; min-width: 0;
+  padding: clamp(1.25rem, 3vw, 2.6rem);
+  background: var(--panel); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-left: 2px solid var(--gold);
+  transform: translate3d(calc(var(--mx, 0) * 10px), calc(var(--my, 0) * 6px), 0);
+}
+.panel.wide { max-width: 62rem; }
+.panel.side { max-width: min(44rem, 56vw); }
+.ghost {
+  position: absolute; right: 5vw; bottom: 14vh; z-index: 0; margin: 0; pointer-events: none; user-select: none;
+  font: 700 clamp(7rem, 24vw, 22rem)/0.8 var(--display); color: rgba(242, 184, 75, 0.13);
+  transform: translate3d(calc(var(--mx, 0) * -48px), calc(var(--my, 0) * -22px), 0);
+}
+.fig {
+  position: absolute; right: 3vw; bottom: 0; z-index: 1; pointer-events: none;
+  height: min(94vh, 1100px); aspect-ratio: var(--ar);
+}
+.fig.bleed { right: 0; top: 0; height: 100%; }
+.fig.bleed .fig-in { inset: -4%; }
+.fig-in {
+  position: absolute; inset: 0; will-change: transform;
+  transform: translate3d(calc(var(--mx, 0) * -24px), calc(var(--my, 0) * -10px), 0);
+}
+.fig-b { position: absolute; inset: 0; transform-origin: 50% 85%; }
+.fig.flip .fig-b { scale: -1 1; }
+.slide.active .fig-b { animation: figIn 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) both, breathe 9s ease-in-out 1.3s infinite alternate; }
+@keyframes figIn { from { opacity: 0.25; transform: translateX(46px) scale(1.04); } to { opacity: 1; transform: none; } }
+@keyframes breathe { from { transform: scale(1) translateY(0); } to { transform: scale(1.016) translateY(-5px); } }
+.fig img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; max-width: none; user-select: none; }
+.f-hair { transform-origin: 38% 30%; animation: sway 5.5s ease-in-out infinite alternate; }
+@keyframes sway { from { transform: rotate(-1.8deg) translateX(-3px); } to { transform: rotate(2.4deg) translateX(4px); } }
+.sheen {
+  mix-blend-mode: screen; opacity: 0.55; filter: brightness(1.9) saturate(0.85);
+  -webkit-mask-image: linear-gradient(105deg, transparent 38%, #000 50%, transparent 62%); mask-image: linear-gradient(105deg, transparent 38%, #000 50%, transparent 62%);
+  -webkit-mask-size: 260% 100%; mask-size: 260% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: 130% 0; mask-position: 130% 0;
+  animation: glint 8s ease-in-out infinite;
+}
+@keyframes glint { 0% { -webkit-mask-position: 130% 0; mask-position: 130% 0; } 50%, 100% { -webkit-mask-position: -30% 0; mask-position: -30% 0; } }
+
+.eyebrow { margin: 0 0 1rem; font: 700 0.8rem/1 var(--body); letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); }
+h1 { margin: 0; font: 700 clamp(3.4rem, 10vw, 8rem)/0.88 var(--display); text-wrap: balance; }
+h1 span { display: block; }
+h1 .of { color: var(--gold); }
+h2 { margin: 0 0 1.25rem; font: 700 clamp(2.1rem, 5vw, 3.6rem)/1 var(--display); text-wrap: balance; }
+.lead { margin: 1.4rem 0 0; max-width: 34ch; font-size: clamp(1.15rem, 2.2vw, 1.6rem); line-height: 1.4; }
+.hint { margin: 1.6rem 0 0; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+.facts { list-style: none; margin: 0; padding: 0; }
+.facts li { position: relative; padding: 0.55rem 0 0.55rem 1.7rem; font-size: clamp(1.1rem, 2vw, 1.45rem); line-height: 1.4; }
+.facts li::before { content: ''; position: absolute; left: 0; top: 1.15rem; width: 0.5rem; height: 0.5rem; background: var(--gold); transform: rotate(45deg); }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 1.4rem; margin: 0; padding: 0; list-style: none; }
+.cols li { min-width: 0; padding-top: 0.9rem; border-top: 1px solid var(--line); }
+.k { display: block; margin-bottom: 0.4rem; font: 700 0.75rem/1 var(--body); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.v { display: block; font: 700 clamp(1.5rem, 2.8vw, 2.1rem)/1.05 var(--display); }
+.sub { display: block; margin-top: 0.5rem; font-size: 1.05rem; line-height: 1.4; color: var(--muted); }
+.trait .v { color: var(--gold); font-size: clamp(1.7rem, 3vw, 2.4rem); }
+
+.track { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; }
+.track li { position: relative; padding-top: 1.1rem; border-top: 2px solid var(--line); }
+.track li::before { content: ''; position: absolute; top: -7px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); }
+.track time { display: block; margin-bottom: 0.35rem; font: 700 0.78rem/1 var(--body); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.track b { display: block; font: 700 clamp(1.3rem, 2.4vw, 1.75rem)/1.12 var(--display); }
+.track span { display: block; margin-top: 0.3rem; color: var(--muted); font-size: 1.05rem; }
+.callout { margin: 1.6rem 0 0; font: 700 clamp(1.5rem, 3vw, 2.1rem)/1.15 var(--display); color: var(--gold); text-wrap: balance; }
+
+.life { list-style: none; margin: 0; padding: 0; }
+.life li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1rem; align-items: baseline; padding: 0.7rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
+.life li:last-child { border-bottom: 0; }
+.when { font: 700 1.6rem/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
+.what { font-size: clamp(1.05rem, 1.9vw, 1.35rem); line-height: 1.35; }
+
+.big { margin: 0; font: 700 clamp(3rem, 9vw, 6.4rem)/0.92 var(--display); text-wrap: balance; }
+.big span { color: var(--gold); }
+.thanks { margin: 1.6rem 0 0; font: 700 1.1rem/1 var(--body); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+.rise { opacity: 1; }
+.slide.active .rise { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 150ms); }
+@keyframes rise { from { opacity: 0.3; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* ---------- controls ---------- */
+.bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(rgba(5, 7, 15, 0), rgba(5, 7, 15, 0.8));
+}
+.btn {
+  appearance: none; min-height: 38px; padding: 0.55rem 0.85rem; background: rgba(5, 7, 15, 0.55); color: var(--linen);
+  border: 1px solid rgba(238, 241, 248, 0.35); font: 700 0.75rem/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+}
+.btn:hover { border-color: var(--gold); color: var(--gold); }
+.btn:focus-visible, .dot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.btn.sq { width: 40px; padding: 0; font-size: 1.1rem; }
+.dots { display: flex; flex: 1; gap: 6px; max-width: 420px; margin-inline: auto; }
+.dot { position: relative; flex: 1; height: 26px; padding: 0; background: transparent; border: 0; cursor: pointer; }
+.dot::after { content: ''; position: absolute; left: 0; right: 0; top: 11px; height: 4px; background: rgba(255, 255, 255, 0.3); }
+.dot[aria-current="true"]::after { background: var(--gold); }
+.count { font: 700 0.8rem/1 var(--body); letter-spacing: 0.16em; color: var(--muted); font-variant-numeric: tabular-nums; }
+#notes {
+  position: fixed; z-index: 6; left: 16px; right: 16px; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); max-width: 60rem; margin-inline: auto;
+  max-height: 38vh; overflow-y: auto; padding: 14px 18px; background: rgba(5, 7, 15, 0.94); border-top: 2px solid var(--gold);
+  font-size: 1.1rem; line-height: 1.5;
+}
+#notes .eyebrow { margin-bottom: 0.5rem; }
+#notes p { margin: 0; }
+#notes p.eyebrow { margin: 0 0 0.5rem; }
+
+@media (max-width: 720px), (max-aspect-ratio: 1/1) {
+  .fig { right: -10vw; top: 2vh; bottom: auto; height: 62vh; }
+  .fig.bleed { right: -14vw; top: 0; height: 70vh; }
+  .panel, .panel.side { margin-block: auto 0; max-width: 100%; }
+  .ghost { bottom: auto; top: 6vh; right: 2vw; }
+  .grade { background: linear-gradient(0deg, rgba(4, 7, 18, 0.85) 0%, rgba(4, 7, 18, 0.35) 55%, rgba(4, 7, 18, 0) 85%); }
+}
+@media (max-width: 720px) {
+  .track { grid-template-columns: minmax(0, 1fr); }
+  .life li { grid-template-columns: 5.5rem minmax(0, 1fr); }
+  .btn.fs { display: none; }
+  .bar { gap: 8px; }
+}
+@media (max-width: 440px) { .count { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .slide.active .rise, .slide.active .fig-b, .f-hair, .sheen, .bd i, .grain, .rays { animation: none; }
+  .slide, .bd { transition: none; }
+}
+</style>
+<style>html{background:#070b18}</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="world" aria-hidden="true">
+    <div class="bd on" style="--img:url(a1p.jpg);--pos:50% 20%;--s:1.12;--blur:3px;--br:0.85"><i></i></div>
+    <div class="bd" style="--img:url(a2p.jpg);--pos:0% 0%;--s:1.9;--org:4% 4%;--blur:5px;--br:0.75;--tint:rgba(60,95,170,0.3);--blend:multiply"><i></i></div>
+    <div class="bd" style="--img:url(a3p.jpg);--pos:50% 30%;--s:1.15;--blur:8px;--br:0.5"><i></i></div>
+    <div class="bd" style="--img:url(a2p.jpg);--pos:90% 100%;--s:1.3;--blur:9px;--br:0.45;--tint:rgba(40,60,130,0.4);--blend:multiply"><i></i></div>
+    <div class="bd" style="--img:url(a3p.jpg);--pos:92% 12%;--s:1.2;--blur:2px;--br:0.7;--tint:rgba(255,150,40,0.35)"><i></i></div>
+    <div class="bd" style="--img:url(a1.jpg);--pos:68% 62%;--s:1.2;--blur:4px;--br:0.62;--sat:1.05;--tint:rgba(255,100,30,0.4);--blend:soft-light"><i></i></div>
+    <div class="bd" style="--img:url(a1p.jpg);--pos:50% 75%;--s:1.12;--blur:4px;--br:1;--tint:rgba(255,170,70,0.5)"><i></i></div>
+    <div class="rays" id="rays"></div>
+    <canvas id="fx"></canvas>
+    <div class="grade"></div>
+    <div class="grain"></div>
+  </div>
+
+  <main id="deck" aria-live="polite">
+    <section class="slide active" data-say="Hello everyone. Today I will tell you about a person I admire. Her name is Joan of Arc. She was a teenager, but she saved her country." aria-label="Slide 1: Title">
+      <div class="fig flip" style="--ar:1472/2616" aria-hidden="true"><div class="fig-in"><div class="fig-b">
+        <img src="a1m.webp" alt="" width="1472" height="2616"><img class="f-hair" src="a1h.webp" alt="" width="1472" height="2616"><img class="sheen" src="a1m.webp" alt="">
+      </div></div></div>
+      <div class="panel side">
+        <p class="eyebrow rise" style="--i:0">A Person I Admire</p>
+        <h1 class="rise" style="--i:1"><span>Joan</span><span class="of">of Arc</span></h1>
+        <p class="lead rise" style="--i:2">She was a teenager, but she saved her country.</p>
+        <p class="hint rise" style="--i:3">Press → or swipe to begin</p>
+      </div>
+    </section>
+
+    <section class="slide" data-say="Joan was born in a small village in France around 1412. Her family was poor and she was not educated. At that time, France and England were fighting a very long war, and France was losing." aria-label="Slide 2: Who was she">
+      <p class="ghost" aria-hidden="true">1412</p>
+      <div class="panel">
+        <p class="eyebrow rise" style="--i:0">Introduction</p>
+        <h2 class="rise" style="--i:1">Who was she?</h2>
+        <ul class="facts">
+          <li class="rise" style="--i:2">French, born around 1412</li>
+          <li class="rise" style="--i:3">Peasant family, village of Domrémy</li>
+          <li class="rise" style="--i:4">Lived during the Hundred Years' War</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" data-say="Joan was a white French girl, only 17 when she began to lead. In battle she wore armor and cut her hair short. No one painted her while she was alive, so we only know her from what people wrote about her." aria-label="Slide 3: Appearance">
+      <div class="fig flip" style="--ar:1024/1536" aria-hidden="true"><div class="fig-in"><div class="fig-b">
+        <img src="a3c.webp" alt="" width="1024" height="1536"><img class="sheen" src="a3c.webp" alt="">
+      </div></div></div>
+      <div class="panel side">
+        <p class="eyebrow rise" style="--i:0">Part 1</p>
+        <h2 class="rise" style="--i:1">Appearance</h2>
+        <ul class="cols">
+          <li class="rise" style="--i:2"><span class="k">Who</span><span class="v">French teenager</span></li>
+          <li class="rise" style="--i:3"><span class="k">Wore</span><span class="v">Armor and simple clothes</span></li>
+          <li class="rise" style="--i:4"><span class="k">Hair</span><span class="v">Short</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" data-say="I admire her courage. Joan was a young girl, but she was not afraid of powerful men or big armies. She believed in her mission and never gave up. This is why I call her a great warrior." aria-label="Slide 4: Personality and character">
+      <div class="fig bleed" style="--ar:1472/2030" aria-hidden="true"><div class="fig-in"><div class="fig-b">
+        <img src="a2c.webp" alt="" width="1472" height="2030"><img class="sheen" src="a2c.webp" alt="">
+      </div></div></div>
+      <div class="panel side">
+        <p class="eyebrow rise" style="--i:0">Part 2</p>
+        <h2 class="rise" style="--i:1">Personality and Character</h2>
+        <ul class="cols">
+          <li class="trait rise" style="--i:2"><span class="v">Brave</span><span class="sub">Not afraid of powerful men or big armies</span></li>
+          <li class="trait rise" style="--i:3"><span class="v">Determined</span><span class="sub">Believed in her mission and never gave up</span></li>
+          <li class="trait rise" style="--i:4"><span class="v">Young, yet amazing</span><span class="sub">A great warrior</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide" data-say="In 1429, Joan led the French army to Orléans. After months of siege, she freed the city in only nine days. Soon after, she helped the prince become King Charles VII. Before Joan, the French people had lost hope. After her victories, they believed they could win again." aria-label="Slide 5: Accomplishments">
+      <p class="ghost" aria-hidden="true">9</p>
+      <div class="panel wide">
+        <p class="eyebrow rise" style="--i:0">Part 3</p>
+        <h2 class="rise" style="--i:1">Accomplishments</h2>
+        <ol class="track">
+          <li class="rise" style="--i:2"><time>May 1429</time><b>Freed Orléans</b><span>in only 9 days</span></li>
+          <li class="rise" style="--i:3"><time>June 1429</time><b>Won the battle of Patay</b></li>
+          <li class="rise" style="--i:4"><time>July 1429</time><b>Crowned King Charles VII</b><span>at Reims</span></li>
+        </ol>
+        <p class="callout rise" style="--i:5">She saved France and restored national confidence.</p>
+      </div>
+    </section>
+
+    <section class="slide" data-say="When Joan was about 13, she said she heard voices telling her to save France. Later, she was captured and the English put her on trial. She was executed in 1431 when she was only 19. Twenty-five years later, a new trial said she was innocent. I admire that she stayed strong until the end." aria-label="Slide 6: Important life events">
+      <div class="panel wide">
+        <p class="eyebrow rise" style="--i:0">Part 4</p>
+        <h2 class="rise" style="--i:1">Important Life Events</h2>
+        <ol class="life">
+          <li class="rise" style="--i:2"><span class="when">Age 13</span><span class="what">Heard voices that she believed were saints</span></li>
+          <li class="rise" style="--i:3"><span class="when">1430</span><span class="what">Captured by the enemy</span></li>
+          <li class="rise" style="--i:4"><span class="when">1431</span><span class="what">Burned at the stake at age 19</span></li>
+          <li class="rise" style="--i:5"><span class="when">1456</span><span class="what">Declared innocent</span></li>
+          <li class="rise" style="--i:6"><span class="when">1920</span><span class="what">Made a saint</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="slide" data-say="To conclude, Joan of Arc was young, but she changed the history of France. I admire her courage, her faith, and her strength. Her story shows that anyone can do great things. Thank you for listening." aria-label="Slide 7: Conclusion">
+      <div class="fig" style="--ar:1472/2616" aria-hidden="true"><div class="fig-in"><div class="fig-b">
+        <img src="a1m.webp" alt="" width="1472" height="2616"><img class="f-hair" src="a1h.webp" alt="" width="1472" height="2616"><img class="sheen" src="a1m.webp" alt="">
+      </div></div></div>
+      <div class="panel side">
+        <p class="eyebrow rise" style="--i:0">Conclusion</p>
+        <p class="big rise" style="--i:1">Courage has <span>no age.</span></p>
+        <p class="lead rise" style="--i:2">I admire what she did in her life story.</p>
+        <p class="thanks rise" style="--i:3">Thank you for listening</p>
+      </div>
+    </section>
+  </main>
+
+  <canvas id="fg" style="z-index:3"></canvas>
+</div>
+
+<aside id="notes" hidden>
+  <p class="eyebrow">Say</p>
+  <p id="notesText"></p>
+</aside>
+
+<nav class="bar" aria-label="Slide controls">
+  <button class="btn sq" id="prev" aria-label="Previous slide">←</button>
+  <div class="dots" id="dots"></div>
+  <span class="count" id="count">01 / 07</span>
+  <button class="btn" id="notesBtn" aria-expanded="false">Notes</button>
+  <button class="btn fs" id="fsBtn">Full screen</button>
+  <button class="btn sq" id="next" aria-label="Next slide">→</button>
+</nav>
+
+<script>
+(function () {
+  var N = 7;
+  var app = document.getElementById('app');
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var bds = Array.prototype.slice.call(document.querySelectorAll('.bd'));
+  var raysEl = document.getElementById('rays');
+  var fxC = document.getElementById('fx'), fgC = document.getElementById('fg');
+  var fx = fxC.getContext('2d'), fg = fgC.getContext('2d');
+  var notes = document.getElementById('notes');
+  var notesText = document.getElementById('notesText');
+  var notesBtn = document.getElementById('notesBtn');
+  var dotsEl = document.getElementById('dots');
+  var countEl = document.getElementById('count');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var MOOD = {
+    ember: [0.08, 0, 0, 0.05, 0.9, 1, 0.12],
+    petal: [0, 0.75, 0.85, 0.7, 0, 0, 0.2],
+    dust:  [0.8, 0.5, 0.4, 0.5, 0.6, 0.3, 0.9],
+    bokeh: [0.6, 0.3, 0.45, 0.4, 0.5, 0.4, 0.75],
+    rays:  [0.12, 0, 0.1, 0.08, 0.9, 0.12, 0.75]
+  };
+  var idx = 0, vw = innerWidth, vh = innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  var cur = { mx: 0, my: 0, ember: 0.08, petal: 0, dust: 0.8, bokeh: 0.6, rays: 0.12 };
+  var tgt = { mx: 0, my: 0, ember: 0.08, petal: 0, dust: 0.8, bokeh: 0.6, rays: 0.12 };
+  var moved = false;
+  var parts = { ember: [], petal: [], dust: [], bokeh: [] };
+
+  function mk(type, init) {
+    var z = Math.random();
+    var p = { z: z, thr: Math.random(), ph: Math.random() * 6.28 };
+    if (type === 'ember') {
+      p.x = Math.random() * vw; p.y = init ? Math.random() * vh : vh + 10;
+      p.vx = (Math.random() - 0.5) * 0.4; p.vy = -(0.3 + Math.random() * 1.1); p.r = 0.8 + Math.random() * 2;
+    } else if (type === 'petal') {
+      p.x = Math.random() * vw * 1.2 - vw * 0.1; p.y = init ? Math.random() * vh : -20;
+      p.vx = 0.2 + Math.random() * 0.5; p.vy = 0.4 + Math.random() * 0.8; p.s = 5 + z * 11;
+      p.rot = Math.random() * 6.28; p.vr = (Math.random() - 0.5) * 0.03; p.fl = Math.random() * 6.28; p.vf = 0.02 + Math.random() * 0.03;
+    } else if (type === 'dust') {
+      p.x = Math.random() * vw; p.y = Math.random() * vh;
+      p.vx = (Math.random() - 0.5) * 0.15; p.vy = -0.05 - Math.random() * 0.15; p.r = 0.5 + Math.random() * 1.6;
+    } else {
+      p.x = Math.random() * vw; p.y = Math.random() * vh;
+      p.vx = (Math.random() - 0.5) * 0.2; p.vy = (Math.random() - 0.5) * 0.15; p.r = 30 + Math.random() * 70;
+    }
+    return p;
+  }
+  function sizeCanvas(c, ctx) {
+    c.width = Math.round(vw * dpr); c.height = Math.round(vh * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function build() {
+    vw = innerWidth; vh = innerHeight;
+    sizeCanvas(fxC, fx); sizeCanvas(fgC, fg);
+    var counts = { ember: 80, petal: 42, dust: 70, bokeh: 10 };
+    for (var t in counts) { parts[t] = []; for (var i = 0; i < counts[t]; i++) parts[t].push(mk(t, true)); }
+  }
+  function vis(type, p) { var v = (cur[type] - p.thr) * 5; return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+  function drawParts(t) {
+    fx.clearRect(0, 0, vw, vh); fg.clearRect(0, 0, vw, vh);
+    if (reduce) return;
+    var i, p, v, a, c, ox;
+    fx.globalCompositeOperation = 'lighter';
+    // dust
+    for (i = 0; i < parts.dust.length; i++) {
+      p = parts.dust[i];
+      p.x += p.vx + Math.sin(t * 0.0006 + p.ph) * 0.12; p.y += p.vy;
+      if (p.y < -5) { p.y = vh + 5; p.x = Math.random() * vw; }
+      if (p.x < -5) p.x = vw + 5; else if (p.x > vw + 5) p.x = -5;
+      v = vis('dust', p); if (v <= 0) continue;
+      a = v * (0.15 + p.z * 0.35);
+      fx.fillStyle = 'rgba(255,232,190,' + a.toFixed(2) + ')';
+      fx.beginPath(); fx.arc(p.x - cur.mx * p.z * 24, p.y - cur.my * p.z * 12, p.r, 0, 6.283); fx.fill();
+    }
+    // embers
+    for (i = 0; i < parts.ember.length; i++) {
+      p = parts.ember[i];
+      p.y += p.vy; p.x += p.vx + Math.sin(t * 0.002 + p.ph) * 0.3;
+      if (p.y < -10) { parts.ember[i] = mk('ember', false); continue; }
+      v = vis('ember', p); if (v <= 0) continue;
+      a = Math.min(1, (vh - p.y) / vh * 1.6) * 0.9 * v;
+      fx.fillStyle = p.r > 1.8 ? 'rgba(255,120,60,' + a.toFixed(2) + ')' : 'rgba(255,196,90,' + a.toFixed(2) + ')';
+      fx.beginPath(); fx.arc(p.x - cur.mx * p.z * 30, p.y, p.r, 0, 6.283); fx.fill();
+    }
+    fx.globalCompositeOperation = 'source-over';
+    // petals (far ones behind the figure, near ones in front)
+    for (i = 0; i < parts.petal.length; i++) {
+      p = parts.petal[i];
+      p.x += p.vx + Math.sin(t * 0.001 + p.ph) * 0.4; p.y += p.vy; p.rot += p.vr; p.fl += p.vf;
+      if (p.y > vh + 20 || p.x > vw + 40) { parts.petal[i] = mk('petal', false); continue; }
+      v = vis('petal', p); if (v <= 0) continue;
+      c = p.z > 0.7 ? fg : fx;
+      c.save();
+      c.globalAlpha = v * (p.z > 0.7 ? 0.75 : 0.55);
+      c.translate(p.x - cur.mx * p.z * 40, p.y - cur.my * p.z * 16); c.rotate(p.rot); c.scale(1, 0.45 + 0.55 * Math.abs(Math.cos(p.fl)));
+      c.fillStyle = 'rgb(255,251,244)';
+      c.beginPath(); c.ellipse(0, 0, p.s, p.s * 0.45, 0, 0, 6.283); c.fill();
+      c.restore();
+    }
+    // bokeh in front
+    fg.globalCompositeOperation = 'lighter';
+    for (i = 0; i < parts.bokeh.length; i++) {
+      p = parts.bokeh[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -100) p.x = vw + 100; else if (p.x > vw + 100) p.x = -100;
+      if (p.y < -100) p.y = vh + 100; else if (p.y > vh + 100) p.y = -100;
+      v = vis('bokeh', p); if (v <= 0) continue;
+      ox = p.x - cur.mx * 60 * (0.5 + p.z); var oy = p.y - cur.my * 24 * (0.5 + p.z);
+      var g = fg.createRadialGradient(ox, oy, 0, ox, oy, p.r);
+      g.addColorStop(0, 'rgba(255,225,170,' + (0.1 * v).toFixed(3) + ')');
+      g.addColorStop(1, 'rgba(255,225,170,0)');
+      fg.fillStyle = g; fg.beginPath(); fg.arc(ox, oy, p.r, 0, 6.283); fg.fill();
+    }
+    fg.globalCompositeOperation = 'source-over';
+  }
+
+  var lastMx = 9, lastMy = 9;
+  function frame(t) {
+    if (!moved && !reduce) { tgt.mx = Math.sin(t / 4200) * 0.55; tgt.my = Math.cos(t / 5200) * 0.28; }
+    var k = reduce ? 1 : 0.07;
+    for (var key in cur) cur[key] += (tgt[key] - cur[key]) * k;
+    if (Math.abs(cur.mx - lastMx) > 0.001 || Math.abs(cur.my - lastMy) > 0.001) {
+      app.style.setProperty('--mx', cur.mx.toFixed(3));
+      app.style.setProperty('--my', cur.my.toFixed(3));
+      lastMx = cur.mx; lastMy = cur.my;
+    }
+    raysEl.style.opacity = cur.rays.toFixed(3);
+    drawParts(t);
+    requestAnimationFrame(frame);
+  }
+
+  for (var d = 0; d < N; d++) {
+    (function (i) {
+      var b = document.createElement('button');
+      b.className = 'dot'; b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      b.addEventListener('click', function () { go(i); });
+      dotsEl.appendChild(b);
+    })(d);
+  }
+  var dots = dotsEl.querySelectorAll('.dot');
+
+  function go(i) {
+    i = Math.max(0, Math.min(N - 1, i));
+    idx = i;
+    slides.forEach(function (s, j) {
+      s.classList.toggle('active', j === i);
+      s.classList.toggle('past', j < i);
+      s.setAttribute('aria-hidden', j === i ? 'false' : 'true');
+    });
+    bds.forEach(function (b, j) { b.classList.toggle('on', j === i); });
+    slides[i].scrollTop = 0;
+    for (var key in MOOD) tgt[key] = MOOD[key][i];
+    for (var j = 0; j < dots.length; j++) dots[j].setAttribute('aria-current', j === i ? 'true' : 'false');
+    countEl.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
+    notesText.textContent = slides[i].getAttribute('data-say') || '';
+    try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) {}
+  }
+  function toggleNotes() {
+    notes.hidden = !notes.hidden;
+    notesBtn.setAttribute('aria-expanded', String(!notes.hidden));
+  }
+  function fullscreen() {
+    try {
+      if (document.fullscreenElement) { document.exitFullscreen(); return; }
+      var p = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+  }
+
+  document.getElementById('prev').addEventListener('click', function () { go(idx - 1); });
+  document.getElementById('next').addEventListener('click', function () { go(idx + 1); });
+  notesBtn.addEventListener('click', toggleNotes);
+  document.getElementById('fsBtn').addEventListener('click', fullscreen);
+  document.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown') { go(idx + 1); e.preventDefault(); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') { go(idx - 1); e.preventDefault(); }
+    else if (k === 'Home') go(0);
+    else if (k === 'End') go(N - 1);
+    else if (k === 'n' || k === 'N') toggleNotes();
+    else if (k === 'f' || k === 'F') fullscreen();
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (reduce || e.pointerType === 'touch') return;
+    moved = true;
+    tgt.mx = (e.clientX / vw - 0.5) * 2;
+    tgt.my = (e.clientY / vh - 0.5) * 2;
+  });
+  var sx = 0, sy = 0;
+  deck.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  deck.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(idx + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+  var rt;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(build, 200); });
+
+  build();
+  var m = /^#s(\d)$/.exec(location.hash || '');
+  go(m ? Number(m[1]) - 1 : 0);
+  for (var key in cur) cur[key] = tgt[key];
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
