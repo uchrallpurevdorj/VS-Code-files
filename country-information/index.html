@@ -255,8 +255,8 @@ h2 .w { display: inline-block; }
 #app.is-hero .grade { opacity: 0.15; }
 .scene.hero { background: #060912; }
 .half { position: absolute; top: -3%; bottom: -3%; width: 52%; background: center / cover no-repeat; filter: saturate(1.2) brightness(0.8) blur(1.2px); will-change: transform; }
-.half.l { left: -1%; background-position: 50% 40%; transform: translate3d(calc(var(--mx) * -16px), calc(var(--my) * -8px), 0); }
-.half.r { right: -1%; background-position: 60% 50%; transform: translate3d(calc(var(--mx) * 16px), calc(var(--my) * -8px), 0); }
+.half.l { left: -1%; background-position: 75% 50%; transform: translate3d(calc(var(--mx) * -16px), calc(var(--my) * -8px), 0); }
+.half.r { right: -1%; background-position: 20% 50%; transform: translate3d(calc(var(--mx) * 16px), calc(var(--my) * -8px), 0); }
 .scene.on .half.l { animation: hl 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) both, hkb 26s ease-in-out 1.6s infinite alternate; }
 .scene.on .half.r { animation: hr 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both, hkb 26s ease-in-out 1.75s infinite alternate-reverse; }
 @keyframes hl { from { translate: -7% 0; clip-path: inset(0 100% 0 0); } to { translate: 0 0; clip-path: inset(0 0 0 0); } }
@@ -268,10 +268,10 @@ h2 .w { display: inline-block; }
 .hero-dim { position: absolute; inset: 0; background: radial-gradient(55% 70% at 50% 50%, rgba(4, 7, 18, 0.6), transparent 72%), linear-gradient(180deg, rgba(4, 7, 18, 0.35), transparent 30%, transparent 70%, rgba(4, 7, 18, 0.5)); pointer-events: none; }
 .hchip { position: absolute; bottom: 15vh; padding: 0.75rem 1.05rem; display: flex; align-items: center; gap: 0.6rem; font: 700 0.76rem/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: #fff; white-space: nowrap; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.34); border-radius: 99px; backdrop-filter: blur(14px) saturate(1.5); -webkit-backdrop-filter: blur(14px) saturate(1.5); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3); translate: calc(var(--mx) * 18px) calc(var(--my) * 8px); }
 .hchip::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; }
-.hchip.l { left: 5vw; } .hchip.l::before { background: #fcd116; box-shadow: 0 0 12px #fcd116; }
-.hchip.r { right: 5vw; } .hchip.r::before { background: #7cc4ff; box-shadow: 0 0 12px #7cc4ff; }
+.hchip.l { left: 5vw; } .hchip.l::before { background: #7cc4ff; box-shadow: 0 0 12px #7cc4ff; }
+.hchip.r { right: 5vw; } .hchip.r::before { background: #fcd116; box-shadow: 0 0 12px #fcd116; }
 .slide.hero { justify-content: center; align-items: center; }
-.panel.center { margin: auto; max-width: 40rem; text-align: center; }
+.panel.center { margin: auto; max-width: 34rem; text-align: center; }
 .panel.center h1 { font-size: clamp(3rem, 7.4vw, 6rem); }
 .panel.center .lead { margin-inline: auto; max-width: 30ch; }
 h1 .c1 { color: #fcd116; } h1 .c2 { color: #7cc4ff; }
@@ -490,7 +490,7 @@ function panelHTML(s) {
   return `<div class="panel">${head}<h2>${words(s.title)}</h2><ul class="facts${s.dense ? ' dense' : ''}">${s.items.map((it, i) => `<li style="--i:${i}">${it[0] ? `<b>${it[0]}</b> ` : ''}${it[1]}</li>`).join('')}</ul></div>`;
 }
 const shotHTML = k => { const p = PHOTOS[k]; return `<figure class="shot${p.map ? ' still' : ''}"><div class="shot-in" style="--ar:${p.ar}"><div class="frame"><div class="clip"><img src="img/${k}.webp" alt="${p.cap}" decoding="async"><i class="sheen"></i></div></div><figcaption class="chip">${p.cap}</figcaption><span class="chip2">${p.tag}</span></div></figure>`; };
-const heroScene = () => `<div class="half l" style="background-image:url(img/flagco.webp)"></div><div class="half r" style="background-image:url(img/flagmn.webp)"></div><div class="seam"></div><div class="hero-dim"></div><span class="hchip l">${PHOTOS.flagco.cap}</span><span class="hchip r">${PHOTOS.flagmn.cap}</span>`;
+const heroScene = () => `<div class="half l" style="background-image:url(img/flagmn.webp)"></div><div class="half r" style="background-image:url(img/flagco.webp)"></div><div class="seam"></div><div class="hero-dim"></div><span class="hchip l">${PHOTOS.flagmn.cap}</span><span class="hchip r">${PHOTOS.flagco.cap}</span>`;
 const photoScene = k => `<div class="ph-bg" style="background-image:url(img/${k}-bg.webp)"></div><div class="aur a1"></div><div class="aur a2"></div>`;
 function galleryHTML() {
   const order = ['bogota', 'ulaanbaatar', 'flagco', 'flagmn', 'guatape', 'sleigh', 'misty', 'gerinside', 'palenqueras', 'mnrestaurant', 'restaurant'];
