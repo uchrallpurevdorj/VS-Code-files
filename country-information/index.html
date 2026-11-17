@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Country information presentation: Colombia and Mongolia - terrain, weather, social problems, food, culture and one important lesson.">
+<title>Colombia &amp; Mongolia | Country Information</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cormorant+Garamond:wght@600;700&display=swap">
+<style>
+/* Concept: every slide is a small illustrated world built from SVG layers at different depths.
+   The pointer moves the layers by different amounts (parallax), a soft light follows the cursor,
+   drifting particles float in front, and the text sits on a dark glass panel. */
+:root {
+  --ink: #070b18;
+  --linen: #eef1f8;
+  --muted: #c3cce0;
+  --accent: #f2b84b;
+  --panel: rgba(6, 10, 24, 0.7);
+  --display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --body: 'Alegreya Sans', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; overflow: hidden; background: var(--ink); color: var(--linen); font-family: var(--body); }
+#app { position: fixed; inset: 0; --mx: 0; --my: 0; }
+
+/* ---------- back: scenes ---------- */
+#world { position: absolute; inset: 0; overflow: hidden; background: var(--ink); }
+.scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 1.2s ease, visibility 0s linear 1.2s; }
+.scene.on { opacity: 1; visibility: visible; transition-delay: 0s; }
+.scene:not(.on) * { animation-play-state: paused !important; }
+.ly { position: absolute; inset: -7%; will-change: transform; transform: translate3d(calc(var(--mx) * var(--d) * -1px), calc(var(--my) * var(--d) * -0.6px), 0); }
+.ly svg { display: block; width: 100%; height: 100%; }
+.scene.on .ly { animation: rise 1.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--d) * 7ms); }
+@keyframes rise { from { translate: 0 calc(var(--d) * 1.1px + 16px); opacity: 0; } to { translate: 0 0; opacity: 1; } }
+
+.drift { animation: drift 46s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: translateX(-110px); } to { transform: translateX(110px); } }
+.tw { animation: tw 3.4s ease-in-out infinite alternate; }
+@keyframes tw { from { opacity: 0.25; } to { opacity: 1; } }
+.bob { animation: bob 7s ease-in-out infinite alternate; }
+@keyframes bob { from { transform: translate(-6px, -16px) rotate(-8deg); } to { transform: translate(6px, 16px) rotate(8deg); } }
+.smoke { animation: smoke 5s ease-in-out infinite alternate; }
+@keyframes smoke { from { opacity: 0.2; translate: -3px 6px; } to { opacity: 0.8; translate: 5px -8px; } }
+.fall { animation: fall 14s linear infinite; }
+.fall.fast { animation-duration: 0.9s; }
+@keyframes fall { from { transform: translateY(0); } to { transform: translateY(900px); } }
+.sway { animation: sway 6s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+@keyframes sway { from { transform: skewX(-1.5deg); } to { transform: skewX(1.5deg); } }
+.wave { animation: wave 9s ease-in-out infinite alternate; }
+@keyframes wave { from { transform: translateX(-60px); } to { transform: translateX(60px); } }
+
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.grade {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 65% 40%, rgba(3, 5, 12, 0) 40%, rgba(3, 5, 12, 0.6) 100%),
+    linear-gradient(90deg, rgba(4, 7, 18, 0.82) 0%, rgba(4, 7, 18, 0.5) 42%, rgba(4, 7, 18, 0) 74%);
+}
+.glow {
+  position: absolute; left: 0; top: 0; width: 38rem; height: 38rem; margin: -19rem 0 0 -19rem; pointer-events: none; mix-blend-mode: screen; opacity: 0.55;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 38%, transparent) 0%, transparent 62%);
+  will-change: transform;
+}
+.grain {
+  position: absolute; inset: -10%; pointer-events: none; opacity: 0.055; mix-blend-mode: overlay; animation: grain 0.9s steps(6) infinite;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes grain { 0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -2%); } 100% { transform: translate(0, 0); } }
+
+/* ---------- middle: slides ---------- */
+#deck { position: absolute; inset: 0; z-index: 2; }
+.slide {
+  position: absolute; inset: 0; display: flex; overflow-y: auto; overflow-x: hidden;
+  padding: 88px clamp(16px, 8vw, 120px) 100px;
+  opacity: 0; visibility: hidden; transform: translateX(5vw);
+  transition: opacity 0.8s ease, transform 1s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 1s;
+}
+.slide.past { transform: translateX(-5vw); }
+.slide.active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.panel {
+  position: relative; z-index: 2; margin-block: auto; margin-inline-end: auto; width: 100%; max-width: 44rem; min-width: 0;
+  padding: clamp(1.25rem, 3vw, 2.6rem);
+  background: var(--panel); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-left: 3px solid var(--accent);
+  transform: translate3d(calc(var(--mx) * 10px), calc(var(--my) * 6px), 0);
+}
+.panel.wide { max-width: 62rem; }
+.slide.active .panel > * { animation: up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.slide.active .panel > :nth-child(2) { animation-delay: 0.08s; }
+.slide.active .panel > :nth-child(3) { animation-delay: 0.16s; }
+.slide.active .panel > :nth-child(4) { animation-delay: 0.24s; }
+@keyframes up { from { opacity: 0; translate: 0 18px; } to { opacity: 1; translate: 0 0; } }
+.ghost {
+  position: absolute; right: 5vw; bottom: 8vh; z-index: 0; margin: 0; pointer-events: none; user-select: none;
+  font: 700 clamp(7rem, 24vw, 22rem)/0.8 var(--display); color: color-mix(in srgb, var(--accent) 16%, transparent);
+  transform: translate3d(calc(var(--mx) * -48px), calc(var(--my) * -22px), 0);
+}
+
+.eyebrow { margin: 0 0 1rem; font: 700 0.8rem/1 var(--body); letter-spacing: 0.24em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font: 700 clamp(3.2rem, 9vw, 7.4rem)/0.9 var(--display); text-wrap: balance; }
+h1 span { display: block; }
+h1 .of { color: var(--accent); font-size: 0.5em; line-height: 1.1; }
+h2 { margin: 0 0 1.1rem; font: 700 clamp(2.1rem, 5vw, 3.6rem)/1 var(--display); text-wrap: balance; }
+.lead { margin: 1.4rem 0 0; max-width: 36ch; font-size: clamp(1.15rem, 2.2vw, 1.6rem); line-height: 1.4; }
+.hint { margin: 1.6rem 0 0; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+.facts { list-style: none; margin: 0; padding: 0; }
+.facts li { position: relative; padding: 0.5rem 0 0.5rem 1.7rem; font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.4; }
+.facts li::before { content: ''; position: absolute; left: 0; top: 1.12rem; width: 0.5rem; height: 0.5rem; background: var(--accent); transform: rotate(45deg); }
+.facts b { color: var(--accent); font-weight: 700; }
+.facts .more { display: block; margin-top: 0.1rem; font-size: 0.82em; line-height: 1.35; color: var(--muted); }
+.facts.dense li { padding-block: 0.4rem; font-size: clamp(1.05rem, 1.8vw, 1.28rem); }
+.facts.dense li::before { top: 0.98rem; }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1.4rem; margin: 1.6rem 0 0; padding: 0; list-style: none; }
+.cols li { min-width: 0; padding-top: 0.9rem; border-top: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); }
+.k { display: block; margin-bottom: 0.4rem; font: 700 0.75rem/1 var(--body); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.v { display: block; font: 700 clamp(1.5rem, 2.8vw, 2.1rem)/1.05 var(--display); }
+.sub { display: block; margin-top: 0.45rem; font-size: 1.02rem; line-height: 1.4; color: var(--muted); }
+
+.cmp { display: grid; grid-template-columns: 7rem 1fr 1fr; gap: 0; margin: 0; font-size: clamp(1rem, 1.7vw, 1.25rem); line-height: 1.35; }
+.cmp > * { padding: 0.7rem 0.9rem 0.7rem 0; border-top: 1px solid rgba(255, 255, 255, 0.16); }
+.cmp .h { border-top: 0; font: 700 clamp(1.5rem, 2.6vw, 2.1rem)/1 var(--display); }
+.cmp .h.co { color: #fcd116; }
+.cmp .h.mn { color: #7cc4ff; }
+.cmp .l { font: 700 0.75rem/1.6 var(--body); letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- front: chrome ---------- */
+.top { position: absolute; z-index: 5; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 1rem; padding: 14px clamp(14px, 3vw, 36px); }
+.home { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; color: var(--linen); text-decoration: none; font-size: 1.2rem; background: rgba(6, 10, 24, 0.55); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(6px); transition: background 0.2s, transform 0.2s; }
+.home:hover, .home:focus-visible { background: var(--accent); color: #111; transform: translateX(-2px); outline: none; }
+.tabs { display: flex; gap: 0.4rem; padding: 0.25rem; border-radius: 99px; background: rgba(6, 10, 24, 0.55); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(6px); }
+.tabs button { font: 700 0.78rem/1 var(--body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); background: none; border: 0; border-radius: 99px; padding: 0.65rem 1rem; cursor: pointer; transition: background 0.25s, color 0.25s; }
+.tabs button:hover { color: #fff; }
+.tabs button[aria-current='true'] { background: var(--accent); color: #111; }
+.tabs button:focus-visible, .nav button:focus-visible, .dots button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.bottom { position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 18px clamp(14px, 3vw, 36px) 22px; }
+.dots { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.dots button { width: 0.7rem; height: 0.7rem; padding: 0; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.7); background: transparent; cursor: pointer; transition: transform 0.25s, background 0.25s; }
+.dots button[aria-current='true'] { background: var(--accent); border-color: var(--accent); transform: scale(1.35); }
+.nav { display: flex; gap: 0.5rem; }
+.nav button { width: 2.6rem; height: 2.6rem; border-radius: 50%; font-size: 1.3rem; line-height: 1; color: var(--linen); background: rgba(6, 10, 24, 0.55); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(6px); cursor: pointer; transition: background 0.2s, color 0.2s; }
+.nav button:hover:not(:disabled) { background: var(--accent); color: #111; }
+.nav button:disabled { opacity: 0.35; cursor: default; }
+
+@media (max-width: 720px) {
+  .slide { padding-top: 76px; padding-bottom: 92px; }
+  .grade { background: linear-gradient(180deg, rgba(4, 7, 18, 0.72), rgba(4, 7, 18, 0.5)); }
+  .cmp { grid-template-columns: 5.2rem 1fr 1fr; font-size: 0.95rem; }
+  .tabs button { padding: 0.6rem 0.75rem; letter-spacing: 0.1em; }
+  .glow { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0.01s !important; }
+  .ly, .panel, .ghost { transform: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="world"></div>
+  <canvas id="fx"></canvas>
+  <div class="grade"></div>
+  <div class="glow" id="glow"></div>
+  <div class="grain"></div>
+  <main id="deck" aria-live="polite"></main>
+  <header class="top">
+    <a class="home" href="../" aria-label="Back to menu" title="Back to menu">&#8592;</a>
+    <nav class="tabs" aria-label="Country"><button data-country="colombia">Colombia</button><button data-country="mongolia">Mongolia</button></nav>
+  </header>
+  <footer class="bottom">
+    <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
+    <div class="nav"><button id="prev" aria-label="Previous slide">&#8249;</button><button id="next" aria-label="Next slide">&#8250;</button></div>
+  </footer>
+</div>
+<noscript><p style="position:relative;z-index:9;padding:2rem">This presentation needs JavaScript. It covers Colombia and Mongolia: terrain, weather, social problems, food, culture and one important lesson.</p></noscript>
+
+<script>
+/* ================= tiny SVG art kit ================= */
+let U = 0; const uid = () => 'g' + (++U);
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const svg = i => `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${i}</svg>`;
+const L = (d, i, c = '') => `<div class="ly ${c}" style="--d:${d}">${svg(i)}</div>`;
+const sky = (a, b, c) => { const i = uid(); return `<defs><linearGradient id="${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".6" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient></defs><rect width="1600" height="900" fill="url(#${i})"/>`; };
+const sun = (x, y, r, c) => { const i = uid(); return `<defs><radialGradient id="${i}"><stop offset="0" stop-color="${c}" stop-opacity=".95"/><stop offset=".22" stop-color="${c}" stop-opacity=".4"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><circle cx="${x}" cy="${y}" r="${r * 5}" fill="url(#${i})"/><circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>`; };
+const mist = (y, h, c, op = 0.5) => { const i = uid(); return `<defs><linearGradient id="${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity="0"/><stop offset=".5" stop-color="${c}" stop-opacity="${op}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs><rect y="${y}" width="1600" height="${h}" fill="url(#${i})"/>`; };
+const rd = (seed, base, amp, jag) => {
+  const r = rng(seed), step = jag ? 55 : 30; let p = [];
+  for (let x = -100; x <= 1700; x += step) { const n = Math.sin(x * .0042 + seed) * .5 + Math.sin(x * .011 + seed * 2) * .3 + (r() - .5) * (jag ? .75 : .06); p.push(`${x} ${(base - amp * Math.max(.04, (.5 + n) / 1.65)).toFixed(0)}`); }
+  return `M-100 920 L${p.join(' L')} L1700 920Z`;
+};
+const ridge = (seed, base, amp, jag, fill) => `<path d="${rd(seed, base, amp, jag)}" fill="${fill}"/>`;
+const peaks = (seed, base, amp, rock, snow = '#fff') => { const i = uid(), d = rd(seed, base, amp, 1); return `<defs><linearGradient id="${i}" gradientUnits="userSpaceOnUse" x1="0" y1="${base - amp}" x2="0" y2="${base - amp * .55}"><stop offset="0" stop-color="${snow}"/><stop offset="1" stop-color="${snow}" stop-opacity="0"/></linearGradient></defs><path d="${d}" fill="${rock}"/><path d="${d}" fill="url(#${i})"/>`; };
+const clouds = (seed, n, y0, y1, fill, op = .8) => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) { const x = r() * 1800 - 100, y = y0 + r() * (y1 - y0), w = 110 + r() * 170; s += `<g transform="translate(${x | 0} ${y | 0})" fill="${fill}" opacity="${op}"><ellipse rx="${w}" ry="${w * .18}"/><ellipse cx="${w * .3}" cy="${-w * .1}" rx="${w * .5}" ry="${w * .2}"/><ellipse cx="${-w * .3}" cy="${-w * .06}" rx="${w * .4}" ry="${w * .16}"/></g>`; } return `<g class="drift">${s}</g>`; };
+const stars = (seed, n, ymax = 520) => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) s += `<circle class="tw" style="animation-delay:${(r() * 4).toFixed(1)}s" cx="${r() * 1600 | 0}" cy="${r() * ymax | 0}" r="${(r() * 1.6 + .4).toFixed(1)}" fill="#fff"/>`; return s; };
+const birds = (seed, n, y0, y1, c = '#1b2236') => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) { const x = 200 + r() * 1200 | 0, y = y0 + r() * (y1 - y0) | 0, z = .6 + r() * .9; s += `<path transform="translate(${x} ${y}) scale(${z.toFixed(2)})" d="M0 0 Q10 -12 22 0 Q34 -12 44 0" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`; } return `<g class="drift">${s}</g>`; };
+const ger = (x, y, s, wall = '#f3efe6', roof = '#ffffff', trim = '#c0392b', lit = false) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-70" y="-50" width="140" height="50" fill="${wall}"/><path d="M-82 -50 Q0 -128 82 -50Z" fill="${roof}"/><path d="M-82 -50H82" stroke="${trim}" stroke-width="5"/><rect x="-14" y="-38" width="28" height="38" rx="2" fill="${lit ? '#ffb347' : trim}"/><circle cx="0" cy="-95" r="5" fill="${trim}"/><path class="smoke" d="M0 -100 q12 -18 0 -34 t0 -34" stroke="rgba(235,235,245,.55)" stroke-width="6" fill="none" stroke-linecap="round"/></g>`;
+const palm = (x, y, s, c = '#0b2e22') => { const F = [[-130, 20, -70, -70], [-95, 52, -50, -88], [-45, 78, -18, -98], [45, 78, 18, -98], [95, 52, 50, -88], [130, 20, 70, -70], [0, -58, 0, -104]]; return `<g class="sway" transform="translate(${x} ${y}) scale(${s})" stroke="${c}" fill="none" stroke-linecap="round"><path d="M-8 420 Q14 210 0 0" stroke-width="15"/>${F.map(f => `<path d="M0 0 Q${f[2]} ${f[3]} ${f[0]} ${f[1]}" stroke-width="9"/>`).join('')}</g>`; };
+const tree = (x, y, s, trunk, leaf) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-9" y="0" width="18" height="${900 - y}" fill="${trunk}"/><ellipse cx="0" cy="-8" rx="95" ry="62" fill="${leaf}"/><ellipse cx="-58" cy="24" rx="62" ry="42" fill="${leaf}"/><ellipse cx="60" cy="20" rx="68" ry="44" fill="${leaf}"/></g>`;
+const city = (seed, base, color, win, n = 24) => { const r = rng(seed); let s = '', x = -20; for (let k = 0; k < n && x < 1650; k++) { const w = 60 + r() * 90, h = 110 + r() * 300; s += `<rect x="${x | 0}" y="${base - h | 0}" width="${w | 0}" height="${h | 0}" fill="${color}"/>`; if (win) for (let wy = base - h + 16; wy < base - 20; wy += 26) for (let wx = x + 10; wx < x + w - 14; wx += 22) if (r() < .26) s += `<rect x="${wx | 0}" y="${wy | 0}" width="9" height="13" fill="${win}" opacity=".85"/>`; x += w + r() * 10; } return s; };
+const fall = (seed, n, mk, cls = '') => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) s += mk(r() * 1700 | 0, r() * 900 | 0, r); return `<g class="fall ${cls}"><g>${s}</g><g transform="translate(0 -900)">${s}</g></g>`; };
+const rain = (seed, n) => fall(seed, n, (x, y) => `<line x1="${x}" y1="${y}" x2="${x - 12}" y2="${y + 44}" stroke="rgba(205,225,255,.55)" stroke-width="2" stroke-linecap="round"/>`, 'fast');
+const snow = (seed, n) => fall(seed, n, (x, y, r) => `<circle cx="${x}" cy="${y}" r="${(r() * 3 + 1.5).toFixed(1)}" fill="#fff" opacity=".85"/>`);
+const bits = (seed, n, fn) => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) { const sc = .5 + r() * 1.2; s += `<g transform="translate(${r() * 1600 | 0} ${r() * 900 | 0}) rotate(${r() * 360 | 0}) scale(${sc.toFixed(2)})"><g class="bob" style="animation-delay:${(r() * -8).toFixed(1)}s">${fn(r)}</g></g>`; } return s; };
+const bean = () => `<ellipse rx="27" ry="17" fill="#5a3320"/><path d="M-23 0 Q0 -9 23 0" stroke="#2b160d" stroke-width="3" fill="none"/>`;
+const dumpling = () => `<circle r="23" fill="#f4e5c8"/><path d="M-15 -14 Q0 -28 15 -14 M-19 -4 Q0 -22 19 -4 M-21 6 Q0 -14 21 6" stroke="#cdb784" stroke-width="2.5" fill="none"/>`;
+const steam = (seed, n, c = 'rgba(255,255,255,.18)') => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) s += `<circle class="bob" style="animation-delay:${(r() * -8).toFixed(1)}s" cx="${r() * 1600 | 0}" cy="${300 + r() * 600 | 0}" r="${40 + r() * 90 | 0}" fill="${c}"/>`; return s; };
+const flagWave = (y, amp, color, phase) => { let p = []; for (let x = -100; x <= 1700; x += 40) p.push(`${x} ${(y + Math.sin(x * .006 + phase) * amp).toFixed(0)}`); return `<path d="M-100 940 L${p.join(' L')} L1700 940Z" fill="${color}"/>`; };
+const bunting = (y, sag, cols) => { let s = `<path d="M-20 ${y} Q800 ${y + sag} 1620 ${y}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="3"/>`; for (let k = 0; k < 17; k++) { const t = k / 16, x = -20 + t * 1640, yy = y + sag * 2 * t * (1 - t); s += `<path d="M${x - 20 | 0} ${yy | 0} L${x + 20 | 0} ${yy | 0} L${x | 0} ${yy + 46 | 0}Z" fill="${cols[k % cols.length]}"/>`; } return `<g class="sway">${s}</g>`; };
+const target = (x, y, r) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#fff"/><circle r="${r * .8}" fill="#2a6fdb"/><circle r="${r * .6}" fill="#fff"/><circle r="${r * .4}" fill="#c0392b"/><circle r="${r * .2}" fill="#f2b84b"/><path d="M0 ${r} V${r * 2.6}" stroke="#4a3320" stroke-width="8"/></g>`;
+const notes = (seed, n, cols) => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) s += `<text class="bob" style="animation-delay:${(r() * -8).toFixed(1)}s" x="${r() * 1600 | 0}" y="${r() * 900 | 0}" font-size="${40 + r() * 70 | 0}" fill="${cols[k % cols.length]}" opacity=".75" font-family="serif">${r() < .5 ? '&#9834;' : '&#9835;'}</text>`; return s; };
+const confetti = (seed, n, cols) => bits(seed, n, r => `<rect x="-6" y="-12" width="12" height="24" rx="3" fill="${cols[r() * cols.length | 0]}"/>`);
+
+/* ================= scene presets ================= */
+const SCENES = {
+  title: () => [
+    L(0, sky('#0a1030', '#7a3a63', '#f3a65a') + stars(3, 90, 420) + sun(800, 560, 60, '#ffe2a0')),
+    L(10, ridge(21, 700, 260, 1, '#26305a') + mist(560, 200, '#f3a65a', .35)),
+    L(24, ridge(34, 800, 250, 1, '#17203f') + ger(1250, 770, 1.1, '#e9dcc6', '#fff', '#c0392b', true)),
+    L(44, ridge(8, 905, 200, 0, '#0b1226') + palm(280, 560, .9, '#050914') + palm(430, 640, .7, '#050914'))],
+  flagCO: () => [
+    L(0, `<rect width="1600" height="900" fill="#fcd116"/>` + flagWave(450, 24, '#0033a0', 0) + flagWave(675, 24, '#ce1126', 1.6)),
+    L(12, mist(0, 900, '#0a1030', .25) + birds(5, 5, 130, 360, '#0a1030')),
+    L(30, ridge(14, 905, 260, 1, 'rgba(7,11,24,.88)'))],
+  geoCO: () => [
+    L(0, sky('#ffe0a8', '#f29b6b', '#4a4f95') + sun(1180, 330, 62, '#fff3cf') + clouds(2, 4, 120, 300, '#ffe9d0', .6)),
+    L(8, peaks(5, 620, 330, '#8392bd', '#fff')),
+    L(18, mist(430, 240, '#ffd9b0', .5) + ridge(9, 730, 280, 1, '#4a7566')),
+    L(32, ridge(12, 830, 250, 1, '#2d6a4a') + mist(600, 260, '#ffffff', .22)),
+    L(54, ridge(17, 915, 180, 0, '#0f3a29') + palm(1380, 640, .8, '#06241a'))],
+  weatherCO: () => [
+    L(0, sky('#2b82d6', '#7cc3ff', '#d6efff') + sun(1250, 240, 70, '#fff6c9')),
+    L(8, clouds(4, 7, 100, 420, '#ffffff', .85)),
+    L(18, ridge(30, 780, 300, 0, '#5ea66a') + clouds(8, 4, 380, 560, '#9db3c9', .75)),
+    L(30, ridge(33, 860, 220, 0, '#2f7d4a') + rain(7, 70)),
+    L(52, ridge(2, 915, 150, 0, '#14573a') + palm(1330, 600, 1, '#0a3626') + palm(1480, 690, .75, '#0a3626'))],
+  socialCO: () => [
+    L(0, sky('#1a1a3a', '#6b3a5a', '#e68a4c') + stars(6, 50, 300)),
+    L(10, ridge(41, 700, 300, 1, '#3c3560')),
+    L(22, city(7, 880, '#241d44', null, 30)),
+    L(38, city(11, 940, '#150f2e', '#ffd37a', 22) + mist(700, 200, '#e68a4c', .2))],
+  foodCO: () => [
+    L(0, sky('#ffbe55', '#e2742a', '#8a2d12') + sun(1100, 300, 90, '#fff0b8')),
+    L(14, bits(4, 12, bean).replace(/<g /g, '<g ')),
+    L(30, steam(3, 8) + bits(9, 9, bean)),
+    L(60, bits(14, 6, bean))],
+  cultureCO: () => [
+    L(0, sky('#2b0f55', '#a3195b', '#f6a623')),
+    L(10, notes(3, 16, ['#fcd116', '#4aa3ff', '#ff5a5f'])),
+    L(22, bunting(70, 90, ['#fcd116', '#0033a0', '#ce1126']) + bunting(180, 120, ['#ce1126', '#fcd116', '#0033a0'])),
+    L(40, confetti(5, 26, ['#fcd116', '#0033a0', '#ce1126'])),
+    L(58, `<g class="wave">${flagWave(800, 30, '#fcd116', 0)}</g>` + `<g class="wave">${flagWave(850, 28, '#0033a0', 2)}</g>` + flagWave(900, 25, '#ce1126', 4))],
+  lessonCO: () => [
+    L(0, sky('#ffe7b3', '#ffb86b', '#e8744f') + sun(900, 520, 110, '#fffbe0')),
+    L(10, birds(8, 7, 120, 420, '#7a3f2e')),
+    L(20, ridge(51, 760, 260, 1, '#d9825e')),
+    L(36, ridge(52, 840, 230, 1, '#a24c43')),
+    L(54, ridge(53, 915, 190, 0, '#5a2a3d'))],
+  flagMN: () => [
+    L(0, `<rect width="1600" height="900" fill="#ce1126"/><rect x="533" width="534" height="900" fill="#015197"/><rect x="1067" width="533" height="900" fill="#ce1126"/>` + mist(0, 900, '#050914', .3)),
+    L(14, clouds(9, 4, 120, 350, '#ffffff', .22) + birds(12, 4, 160, 420, '#050914')),
+    L(32, ridge(61, 905, 250, 0, 'rgba(7,11,24,.88)') + ger(1300, 780, 1.4, '#e9dcc6', '#fff', '#f2b84b', true))],
+  geoMN: () => [
+    L(0, sky('#3b82d6', '#9cc9f5', '#fff2d2') + sun(260, 300, 55, '#fff6c9') + clouds(3, 6, 120, 360, '#ffffff', .8)),
+    L(8, peaks(71, 600, 350, '#7584a8', '#ffffff')),
+    L(18, mist(420, 220, '#fff2d2', .45) + ridge(72, 740, 190, 0, '#b8b36a')),
+    L(30, ridge(73, 830, 150, 0, '#c9a45a') + ger(1180, 770, .8)),
+    L(50, ridge(74, 915, 170, 0, '#e0b872') + ridge(75, 940, 120, 0, '#c99a52'))],
+  weatherMN: () => [
+    L(0, sky('#1b5fc4', '#6aa8ee', '#cfe6ff') + sun(1280, 200, 65, '#fffbe0')),
+    L(8, clouds(15, 5, 100, 330, '#ffffff', .85)),
+    L(20, ridge(81, 740, 230, 0, '#e7f0ff') + ridge(82, 810, 190, 0, '#cfe0f8')),
+    L(34, ridge(83, 880, 170, 0, '#f7fbff') + ger(1180, 800, 1.2, '#f3efe6', '#ffffff', '#c0392b', true)),
+    L(52, snow(5, 90))],
+  socialMN: () => [
+    L(0, sky('#6d605f', '#b99a84', '#e0b78e') + sun(1200, 420, 70, '#ffdba8')),
+    L(10, city(91, 800, '#7c6f70', '#ffd9a0', 22) + mist(420, 300, '#d9b794', .5)),
+    L(26, city(92, 880, '#4e4446', '#ffd9a0', 18) + mist(560, 300, '#c9a98a', .45)),
+    L(44, `<rect y="840" width="1600" height="100" fill="#2b2326"/>` + [0, 1, 2, 3, 4, 5, 6, 7].map(k => ger(110 + k * 205, 880 + (k % 2) * 16, .55, '#d8cdb8', '#ece4d2', '#6b3a2e')).join('')),
+    L(60, mist(300, 420, '#b99a84', .35))],
+  foodMN: () => [
+    L(0, sky('#4a2a1d', '#a44f26', '#e59a4a')),
+    L(12, steam(21, 9, 'rgba(255,230,190,.14)')),
+    L(30, bits(24, 22, dumpling)),
+    L(56, bits(26, 12, dumpling))],
+  cultureMN: () => [
+    L(0, sky('#1f6fd4', '#7db6ee', '#f6e7b8') + sun(1250, 230, 60, '#fff6c9') + clouds(31, 5, 110, 330, '#ffffff', .85)),
+    L(10, birds(33, 3, 150, 380, '#2a2118')),
+    L(20, ridge(32, 760, 180, 0, '#8fa85a') + bunting(300, 80, ['#2a6fdb', '#f2b84b', '#c0392b', '#ffffff'])),
+    L(34, ridge(34, 850, 160, 0, '#6d8a3e') + ger(1060, 790, 1.1) + ger(1280, 800, .9) + target(1450, 700, 52)),
+    L(52, ridge(35, 925, 130, 0, '#4a6a2b'))],
+  lessonMN: () => [
+    L(0, sky('#050a1e', '#10204a', '#2a3a6e') + stars(41, 160, 560) + `<circle cx="1220" cy="190" r="46" fill="#f7f1d6"/><circle cx="1240" cy="178" r="42" fill="#10204a"/>`),
+    L(14, ridge(42, 780, 220, 0, '#0b1633') + mist(600, 200, '#2a3a6e', .35)),
+    L(30, ridge(43, 860, 180, 0, '#070d22') + `<circle cx="1060" cy="790" r="150" fill="rgba(255,179,71,.18)"/>` + ger(1060, 810, 1.3, '#cfc6b3', '#e9e2d0', '#c0392b', true)),
+    L(50, ridge(44, 925, 140, 0, '#03060f'))],
+  compare: () => [
+    L(0, sky('#070b18', '#1a2150', '#4a3a68') + stars(51, 120, 560)),
+    L(12, ridge(52, 800, 330, 1, '#1d2552')),
+    L(30, ridge(53, 880, 260, 1, '#10153a')),
+    L(50, ridge(54, 925, 190, 0, '#080b22'))],
+  thanks: () => [
+    L(0, sky('#16255e', '#c26a6a', '#ffcf8a') + sun(800, 600, 90, '#fff3cf') + stars(55, 60, 300)),
+    L(14, ridge(56, 760, 280, 1, '#5a4a7a')),
+    L(30, ridge(57, 850, 230, 1, '#2f2a5a') + ger(1250, 800, 1, '#e9dcc6', '#fff', '#c0392b', true)),
+    L(50, ridge(58, 925, 170, 0, '#14123a') + palm(320, 600, .85, '#0a0922'))]
+};
+
+/* ================= content ================= */
+const CO = '#fcd116', MN = '#7cc4ff', GOLD = '#f2b84b';
+const SLIDES = [
+  { type: 'title', scene: 'title', accent: GOLD, eyebrow: 'Country Information', title: '<span>Colombia</span><span class="of">&amp;</span><span>Mongolia</span>', lead: 'Two countries on opposite sides of the world: their land, weather, people, food and traditions.', hint: 'Press → or use the arrows to begin' },
+
+  { type: 'cols', country: 'colombia', scene: 'flagCO', accent: CO, eyebrow: 'Colombia', title: 'Welcome to Colombia', ghost: 'CO', cols: [['Capital city', 'Bogotá', 'High in the Andes mountains'], ['Language', 'Spanish', 'Spoken across the whole country'], ['Currency', 'Colombian peso', 'Used for all everyday payments'], ['Coasts', 'Two seas', 'Caribbean and Pacific']] },
+  { type: 'list', country: 'colombia', scene: 'geoCO', accent: CO, eyebrow: 'Colombia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
+  { type: 'list', country: 'colombia', scene: 'weatherCO', accent: CO, eyebrow: 'Colombia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['', 'Tropical climate.'], ['', 'Warm weather in many regions.'], ['', 'Two rainy seasons in some areas.']] },
+  { type: 'list', country: 'colombia', scene: 'socialCO', accent: CO, eyebrow: 'Colombia — 03 / 06', title: 'Any social problems?', ghost: '03', items: [['', 'Poverty and inequality.'], ['', 'Violence in some areas.'], ['', 'Unemployment.']] },
+  { type: 'list', country: 'colombia', scene: 'foodCO', accent: CO, eyebrow: 'Colombia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['', 'Arepas and empanadas.'], ['', 'Bandeja paisa.'], ['', 'Coffee is very popular.']] },
+  { type: 'list', country: 'colombia', scene: 'cultureCO', accent: CO, eyebrow: 'Colombia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['', 'Family is very important.'], ['', 'People are friendly and welcoming.'], ['', 'Music and dancing are popular.'], ['', 'Cumbia, vallenato, and salsa.']] },
+  { type: 'list', country: 'colombia', scene: 'lessonCO', accent: CO, eyebrow: 'Colombia — 06 / 06', title: 'One important thing I learned growing up', ghost: '06', items: [['', 'Respect other people.'], ['', 'Family always comes first.'], ['', 'Be kind and help others.'], ['', 'Never give up.']] },
+
+  { type: 'cols', country: 'mongolia', scene: 'flagMN', accent: MN, eyebrow: 'Mongolia', title: 'Welcome to Mongolia', ghost: 'MN', cols: [['Capital city', 'Ulaanbaatar', 'Home to about half of the \u2248 3.5 million people'], ['Language', 'Mongolian', 'Written in Cyrillic today'], ['Currency', 'T\u00f6gr\u00f6g', 'Mongolian national money'], ['Neighbours', 'Russia & China', 'Landlocked, 1.56 million km\u00b2']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'geoMN', accent: MN, eyebrow: 'Mongolia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['Landlocked.', 'Russia is to the north and China to the south, east and west.'], ['Huge and empty.', '19th largest country in the world, but very few people.'], ['Altai Mountains.', 'West: snowy peaks, the highest point is 4,374 m.'], ['Gobi Desert.', 'South: about one third of the country, dunes and rocky plains.'], ['Steppe.', 'Endless grassland in the centre and east.'], ['Lakes and forest.', 'North: Lake Khövsgöl and taiga forest.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'weatherMN', accent: MN, eyebrow: 'Mongolia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['Extreme climate.', 'Very long cold winters and short warm summers.'], ['Winter.', 'January averages about −20°C and nights can fall below −40°C.'], ['Summer.', 'June to August is pleasant; the Gobi can reach +40°C.'], ['Land of the Eternal Blue Sky.', 'More than 260 sunny days every year.'], ['Dzud.', 'A deadly winter after a dry summer: snow covers the grass and animals starve.'], ['Dry.', 'Little rain, and most of it falls in summer.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'socialMN', accent: MN, eyebrow: 'Mongolia — 03 / 06', title: 'Any social problems?', ghost: '03', items: [['Air pollution.', 'In winter, coal smoke from ger districts makes Ulaanbaatar one of the most polluted capitals.'], ['Poverty and inequality.', 'Many families in the ger districts live on low income.'], ['Unemployment.', 'Not enough stable jobs; the economy depends heavily on mining.'], ['Climate pressure.', 'After dzud, herders lose animals and move to the edge of the capital.'], ['Crowded capital.', 'About half of the country lives in one city.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'foodMN', accent: MN, eyebrow: 'Mongolia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['Buuz.', 'Steamed mutton dumplings; the star of Tsagaan Sar, the Lunar New Year.'], ['Khuushuur.', 'Large fried meat pancakes, a Naadam favourite.'], ['Suutei tsai.', 'Salty milk tea, drunk many times a day and offered to every guest.'], ['Airag.', 'Fermented mare’s milk, the classic summer drink.'], ['Aaruul and boortsog.', 'Dried milk curds and fried biscuits, perfect with tea.'], ['Why so much meat and milk?', 'Long winters and nomadic life.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'cultureMN', accent: MN, eyebrow: 'Mongolia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['Nomadic life.', 'About a quarter of people still live as herders in a ger (a round felt home).'], ['Naadam.', 'July 11–13: wrestling, horse racing and archery.'], ['Music.', 'Morin khuur (horse-head fiddle), throat singing (khoomei) and long songs.'], ['Hospitality.', 'Guests are always welcome and traditionally the ger door stays unlocked.'], ['Beliefs.', 'Tibetan Buddhism and old shamanist traditions.'], ['History.', 'Home of Chinggis Khaan, founder of the Mongol Empire.']] },
+  { type: 'list', country: 'mongolia', scene: 'lessonMN', accent: MN, eyebrow: 'Mongolia — 06 / 06', title: 'One important thing I learned growing up', ghost: '06', items: [['', 'Respect your elders and your guests.'], ['', 'Family and community come first.'], ['', 'Be strong like the steppe: adapt to hard times.'], ['', 'Never give up. Every winter ends.']] },
+
+  { type: 'compare', scene: 'compare', accent: GOLD, eyebrow: 'Side by side', title: 'Two lands, one world', ghost: 'VS', rows: [['Terrain', 'Andes, Amazon, two coasts', 'Steppe, Gobi, Altai peaks'], ['Weather', 'Tropical, warm, two rainy seasons', '−40°C winters to +40°C Gobi summers'], ['Food', 'Arepas, bandeja paisa, coffee', 'Buuz, suutei tsai, airag'], ['Culture', 'Cumbia, vallenato, salsa', 'Throat singing, Naadam'], ['Lesson', 'Family always comes first', 'Respect elders and guests']] },
+  { type: 'title', scene: 'thanks', accent: GOLD, eyebrow: 'Thank you', title: '<span>Questions?</span>', lead: 'Colombia and Mongolia look very different, but family, respect and kindness matter in both.', hint: 'Use ← to go back' }
+];
+
+/* ================= build ================= */
+const $ = s => document.querySelector(s);
+const app = $('#app'), world = $('#world'), deck = $('#deck'), dotsEl = $('#dots');
+const esc = s => s.replace(/&(?!amp;)/g, '&amp;');
+function panelHTML(s) {
+  const head = `<p class="eyebrow">${s.eyebrow}</p>`;
+  if (s.type === 'title') return `<div class="panel wide">${head}<h1>${s.title}</h1><p class="lead">${s.lead}</p><p class="hint">${s.hint}</p></div>`;
+  if (s.type === 'cols') return `<div class="panel wide">${head}<h2>${s.title}</h2><ul class="cols">${s.cols.map(c => `<li><span class="k">${c[0]}</span><span class="v">${c[1]}</span><span class="sub">${c[2]}</span></li>`).join('')}</ul></div>`;
+  if (s.type === 'compare') return `<div class="panel wide">${head}<h2>${s.title}</h2><div class="cmp" role="table"><span class="h"></span><span class="h co">Colombia</span><span class="h mn">Mongolia</span>${s.rows.map(r => `<span class="l">${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span>`).join('')}</div></div>`;
+  return `<div class="panel">${head}<h2>${s.title}</h2><ul class="facts${s.dense ? ' dense' : ''}">${s.items.map(it => `<li>${it[0] ? `<b>${it[0]}</b> ` : ''}${it[1]}</li>`).join('')}</ul></div>`;
+}
+const scenes = [], slides = [], dots = [];
+SLIDES.forEach((s, i) => {
+  const sc = document.createElement('div'); sc.className = 'scene'; sc.innerHTML = SCENES[s.scene]().join(''); world.appendChild(sc); scenes.push(sc);
+  const sl = document.createElement('section'); sl.className = 'slide'; sl.setAttribute('aria-label', s.title.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').trim());
+  sl.innerHTML = (s.ghost ? `<p class="ghost" aria-hidden="true">${s.ghost}</p>` : '') + panelHTML(s); deck.appendChild(sl); slides.push(sl);
+  const d = document.createElement('button'); d.setAttribute('aria-label', 'Slide ' + (i + 1)); d.onclick = () => go(i); dotsEl.appendChild(d); dots.push(d);
+});
+const firstOf = c => SLIDES.findIndex(s => s.country === c);
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => go(firstOf(b.dataset.country)));
+
+/* ================= navigation ================= */
+let cur = -1, accentRGB = [242, 184, 75];
+const hex2rgb = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
+function go(n) {
+  n = Math.max(0, Math.min(SLIDES.length - 1, n)); if (n === cur) return;
+  cur = n; const s = SLIDES[n];
+  slides.forEach((el, i) => { el.classList.toggle('active', i === n); el.classList.toggle('past', i < n); if (i === n) el.scrollTop = 0; });
+  scenes.forEach((el, i) => el.classList.toggle('on', i === n));
+  dots.forEach((d, i) => d.setAttribute('aria-current', i === n ? 'true' : 'false'));
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.country === s.country)));
+  app.style.setProperty('--accent', s.accent); accentRGB = hex2rgb(s.accent);
+  $('#prev').disabled = n === 0; $('#next').disabled = n === SLIDES.length - 1;
+  try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) { }
+}
+$('#prev').onclick = () => go(cur - 1); $('#next').onclick = () => go(cur + 1);
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') { e.preventDefault(); go(cur + 1); }
+  else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') { e.preventDefault(); go(cur - 1); }
+  else if (k === 'Home') go(0); else if (k === 'End') go(SLIDES.length - 1);
+  else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+});
+let wheelLock = 0;
+addEventListener('wheel', e => {
+  const el = slides[cur]; if (!el || Math.abs(e.deltaY) < 30 || Date.now() < wheelLock) return;
+  const can = el.scrollHeight > el.clientHeight + 4; if (can && ((e.deltaY > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 4) || (e.deltaY < 0 && el.scrollTop > 4))) return;
+  wheelLock = Date.now() + 900; go(cur + (e.deltaY > 0 ? 1 : -1));
+}, { passive: true });
+let sx = 0, sy = 0;
+deck.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; });
+deck.addEventListener('pointerup', e => { const dx = e.clientX - sx, dy = e.clientY - sy; if (e.pointerType !== 'mouse' && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1)); });
+addEventListener('hashchange', () => { const n = parseInt(location.hash.slice(1), 10); if (n) go(n - 1); });
+
+/* ================= smooth pointer parallax + particles ================= */
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tx = 0, ty = 0, mx = 0, my = 0, gx = innerWidth / 2, gy = innerHeight / 2, px = gx, py = gy, last = 0;
+addEventListener('pointermove', e => { tx = (e.clientX / innerWidth - .5) * 2; ty = (e.clientY / innerHeight - .5) * 2; gx = e.clientX; gy = e.clientY; last = performance.now(); });
+const cv = $('#fx'), cx = cv.getContext('2d'), glow = $('#glow'); let dpr = 1;
+function size() { dpr = Math.min(devicePixelRatio || 1, 2); cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }
+addEventListener('resize', size); size();
+const pr = rng(99), P = Array.from({ length: 70 }, () => ({ x: pr() * innerWidth, y: pr() * innerHeight, r: pr() * 2.4 + .6, v: pr() * .5 + .15, h: pr() * 1.2 - .6, d: pr() * 2 + .4, a: pr() * .5 + .25 }));
+function frame(t) {
+  const idle = t - last > 2500 || last === 0;
+  if (idle) { tx = Math.sin(t * .00018) * .55; ty = Math.cos(t * .00013) * .3; }
+  mx += (tx - mx) * .055; my += (ty - my) * .055; px += (gx - px) * .12; py += (gy - py) * .12;
+  app.style.setProperty('--mx', mx.toFixed(4)); app.style.setProperty('--my', my.toFixed(4));
+  glow.style.transform = `translate3d(${px}px,${py}px,0)`;
+  cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, innerWidth, innerHeight);
+  for (const p of P) {
+    p.y -= p.v; p.x += p.h * .3; if (p.y < -10) { p.y = innerHeight + 10; p.x = Math.random() * innerWidth; } if (p.x < -10) p.x = innerWidth + 10; if (p.x > innerWidth + 10) p.x = -10;
+    cx.beginPath(); cx.arc(p.x + mx * p.d * -26, p.y + my * p.d * -14, p.r, 0, 6.2832); cx.fillStyle = `rgba(${accentRGB[0]},${accentRGB[1]},${accentRGB[2]},${p.a})`; cx.fill();
+  }
+  requestAnimationFrame(frame);
+}
+if (!reduce) requestAnimationFrame(frame); else glow.style.display = 'none';
+
+const start = parseInt(location.hash.slice(1), 10);
+go(start ? start - 1 : 0);
+</script>
+</body>
+</html>

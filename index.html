@@ -2,12 +2,109 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Joan of Arc</title>
-<meta http-equiv="refresh" content="0; url=joan-of-arc/">
-<link rel="canonical" href="joan-of-arc/">
-<style>html{background:#070b18}</style>
-<script>location.replace("joan-of-arc/" + location.hash);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Choose a presentation: Joan of Arc or Country Information (Colombia and Mongolia).">
+<title>Presentations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;500;700&family=Cormorant+Garamond:wght@600;700&display=swap">
+<style>
+:root { --ink: #070b18; --linen: #eef1f8; --muted: #b9c3da; --gold: #f2b84b; --display: 'Cormorant Garamond', Georgia, serif; --body: 'Alegreya Sans', system-ui, sans-serif; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--ink); color: var(--linen); font-family: var(--body); overflow-x: hidden; }
+#stage { position: fixed; inset: 0; --mx: 0; --my: 0; overflow: hidden; }
+.ly { position: absolute; inset: -6%; will-change: transform; transform: translate3d(calc(var(--mx) * var(--d) * -1px), calc(var(--my) * var(--d) * -.6px), 0); }
+.ly svg { display: block; width: 100%; height: 100%; }
+.tw { animation: tw 3.4s ease-in-out infinite alternate; }
+@keyframes tw { from { opacity: .25; } to { opacity: 1; } }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.glow { position: absolute; left: 0; top: 0; width: 36rem; height: 36rem; margin: -18rem 0 0 -18rem; pointer-events: none; mix-blend-mode: screen; opacity: .5; background: radial-gradient(circle, rgba(242, 184, 75, .35), transparent 62%); will-change: transform; }
+.vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(110% 90% at 50% 45%, rgba(3, 5, 12, 0) 35%, rgba(3, 5, 12, .75) 100%); }
+main { position: relative; z-index: 2; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.4rem, 4vh, 2.6rem); padding: 40px clamp(16px, 5vw, 64px); text-align: center; }
+.eyebrow { margin: 0; font: 700 .8rem/1 var(--body); letter-spacing: .28em; text-transform: uppercase; color: var(--gold); }
+h1 { margin: 0; font: 700 clamp(2.8rem, 8vw, 6rem)/.95 var(--display); text-wrap: balance; }
+.choices { display: grid; grid-template-columns: repeat(2, minmax(0, 24rem)); gap: clamp(1rem, 3vw, 2rem); width: 100%; justify-content: center; perspective: 1100px; }
+.card {
+  --rx: 0deg; --ry: 0deg; position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: .5rem; min-height: clamp(13rem, 34vh, 19rem); padding: clamp(1.2rem, 3vw, 1.8rem);
+  text-align: left; color: var(--linen); text-decoration: none; overflow: hidden; border-radius: 6px;
+  background: rgba(6, 10, 24, .62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, .2);
+  transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform .25s ease-out, border-color .3s, box-shadow .3s;
+}
+.card::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: .9; transition: opacity .3s, transform .6s; }
+.card.joan::before { background: radial-gradient(90% 80% at 80% 10%, rgba(242, 184, 75, .55), transparent 60%), linear-gradient(160deg, #1a2a66, #070b18 70%); }
+.card.country::before { background: linear-gradient(90deg, #fcd116 0 50%, #0033a0 50% 75%, #ce1126 75%) top / 100% 6px no-repeat, radial-gradient(90% 80% at 80% 10%, rgba(124, 196, 255, .5), transparent 60%), linear-gradient(160deg, #3a1020, #0b2350 75%); }
+.card:hover, .card:focus-visible { border-color: var(--gold); box-shadow: 0 18px 50px rgba(0, 0, 0, .5), 0 0 0 1px var(--gold) inset; outline: none; }
+.card:hover::before { transform: scale(1.06); }
+.card .k { font: 700 .75rem/1 var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--gold); }
+.card .t { font: 700 clamp(2.1rem, 4vw, 3rem)/1 var(--display); }
+.card .d { font-size: 1.08rem; line-height: 1.4; color: var(--muted); }
+.card .go { margin-top: .6rem; display: inline-flex; align-items: center; gap: .6rem; align-self: flex-start; padding: .7rem 1.2rem; font: 700 .8rem/1 var(--body); letter-spacing: .18em; text-transform: uppercase; color: #111; background: var(--gold); border-radius: 99px; transition: gap .25s; }
+.card:hover .go, .card:focus-visible .go { gap: 1.1rem; }
+.foot { margin: 0; font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+@media (max-width: 720px) { .choices { grid-template-columns: minmax(0, 26rem); } .card { min-height: 12rem; } .glow { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition-duration: .01s !important; } .ly { transform: none !important; } }
+</style>
 </head>
-<body><a href="joan-of-arc/" style="color:#f2b84b;font-family:sans-serif">Open the presentation</a></body>
+<body>
+<div id="stage">
+  <div class="ly" style="--d:4"><svg id="sky" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+  <div class="ly" style="--d:14"><svg id="far" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+  <div class="ly" style="--d:34"><svg id="near" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg></div>
+  <canvas id="fx"></canvas>
+  <div class="glow" id="glow"></div>
+  <div class="vignette"></div>
+</div>
+<main>
+  <p class="eyebrow">uchralpurevdorj.com</p>
+  <h1>Choose a presentation</h1>
+  <nav class="choices" aria-label="Presentations">
+    <a class="card joan" href="joan-of-arc/">
+      <span class="k">Presentation 1</span>
+      <span class="t">Joan of Arc</span>
+      <span class="d">The farmer&rsquo;s daughter who led an army.</span>
+      <span class="go">Open &rarr;</span>
+    </a>
+    <a class="card country" href="country-information/">
+      <span class="k">Presentation 2</span>
+      <span class="t">Country Information</span>
+      <span class="d">Colombia and Mongolia: land, weather, food and culture.</span>
+      <span class="go">Open &rarr;</span>
+    </a>
+  </nav>
+  <p class="foot">Hover the cards &middot; move the mouse</p>
+</main>
+<script>
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rd = (seed, base, amp) => { const r = rng(seed); let p = []; for (let x = -100; x <= 1700; x += 55) { const n = Math.sin(x * .0042 + seed) * .5 + Math.sin(x * .011 + seed * 2) * .3 + (r() - .5) * .7; p.push(`${x} ${(base - amp * Math.max(.04, (.5 + n) / 1.65)).toFixed(0)}`); } return `M-100 920 L${p.join(' L')} L1700 920Z`; };
+const r = rng(5); let st = '';
+for (let k = 0; k < 140; k++) st += `<circle class="tw" style="animation-delay:${(r() * 4).toFixed(1)}s" cx="${r() * 1600 | 0}" cy="${r() * 600 | 0}" r="${(r() * 1.6 + .4).toFixed(1)}" fill="#fff"/>`;
+document.getElementById('sky').innerHTML = `<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050a1e"/><stop offset=".6" stop-color="#1a2150"/><stop offset="1" stop-color="#7a3a63"/></linearGradient></defs><rect width="1600" height="900" fill="url(#s)"/>${st}`;
+document.getElementById('far').innerHTML = `<path d="${rd(3, 760, 330)}" fill="#1d2552"/>`;
+document.getElementById('near').innerHTML = `<path d="${rd(9, 870, 260)}" fill="#0c1230"/><path d="${rd(14, 925, 170)}" fill="#050814"/>`;
+const stage = document.getElementById('stage'), glow = document.getElementById('glow'), cv = document.getElementById('fx'), cx = cv.getContext('2d');
+let tx = 0, ty = 0, mx = 0, my = 0, gx = innerWidth / 2, gy = innerHeight / 2, px = gx, py = gy, last = 0, dpr = 1;
+const size = () => { dpr = Math.min(devicePixelRatio || 1, 2); cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; }; addEventListener('resize', size); size();
+addEventListener('pointermove', e => { tx = (e.clientX / innerWidth - .5) * 2; ty = (e.clientY / innerHeight - .5) * 2; gx = e.clientX; gy = e.clientY; last = performance.now(); });
+const pr = rng(77), P = Array.from({ length: 60 }, () => ({ x: pr() * innerWidth, y: pr() * innerHeight, r: pr() * 2.2 + .6, v: pr() * .45 + .15, h: pr() * 1.2 - .6, d: pr() * 2 + .4, a: pr() * .5 + .25 }));
+document.querySelectorAll('.card').forEach(c => {
+  c.addEventListener('pointermove', e => { const b = c.getBoundingClientRect(); c.style.setProperty('--ry', ((e.clientX - b.left) / b.width - .5) * 8 + 'deg'); c.style.setProperty('--rx', (-((e.clientY - b.top) / b.height - .5)) * 8 + 'deg'); });
+  c.addEventListener('pointerleave', () => { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
+});
+function frame(t) {
+  if (t - last > 2500 || last === 0) { tx = Math.sin(t * .00018) * .55; ty = Math.cos(t * .00013) * .3; }
+  mx += (tx - mx) * .055; my += (ty - my) * .055; px += (gx - px) * .12; py += (gy - py) * .12;
+  stage.style.setProperty('--mx', mx.toFixed(4)); stage.style.setProperty('--my', my.toFixed(4));
+  glow.style.transform = `translate3d(${px}px,${py}px,0)`;
+  cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, innerWidth, innerHeight);
+  for (const p of P) {
+    p.y -= p.v; p.x += p.h * .3; if (p.y < -10) { p.y = innerHeight + 10; p.x = Math.random() * innerWidth; } if (p.x < -10) p.x = innerWidth + 10; if (p.x > innerWidth + 10) p.x = -10;
+    cx.beginPath(); cx.arc(p.x + mx * p.d * -26, p.y + my * p.d * -14, p.r, 0, 6.2832); cx.fillStyle = `rgba(242,184,75,${p.a})`; cx.fill();
+  }
+  requestAnimationFrame(frame);
+}
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(frame); else glow.style.display = 'none';
+</script>
+</body>
 </html>
