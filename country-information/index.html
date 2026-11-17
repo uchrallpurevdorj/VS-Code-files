@@ -285,6 +285,20 @@ h1 .c1 { color: #fcd116; } h1 .c2 { color: #7cc4ff; }
 
 /* ===== v4: earth ===== */
 #app.is-earth .grade { opacity: 0.2; }
+
+.spin { animation: spin 140s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.flap { animation: flap .9s ease-in-out infinite alternate; transform-origin: 0 0; }
+@keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(-.55); } }
+.fly { animation: fly 38s linear infinite; }
+@keyframes fly { from { transform: translateX(-260px); } to { transform: translateX(1900px); } }
+.tw2 { animation: tw2 3s ease-in-out infinite; }
+@keyframes tw2 { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+.dash { animation: dash 2.4s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -80; } }
+.sway2 { animation: sway2 5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+@keyframes sway2 { from { transform: skewX(-1.6deg); } to { transform: skewX(1.6deg); } }
+#app.is-clear .grade { opacity: 1; background: radial-gradient(120% 90% at 65% 40%, rgba(3, 5, 12, 0) 55%, rgba(3, 5, 12, 0.28) 100%), linear-gradient(90deg, rgba(4, 7, 18, 0.42) 0%, rgba(4, 7, 18, 0.12) 40%, rgba(4, 7, 18, 0) 66%); }
 .scene.earthscene { background: #02030a; }
 .earth { position: absolute; inset: 0; overflow: hidden; }
 .e-stars { position: absolute; inset: 0; transform: scale(1); transition: transform 3.2s cubic-bezier(0.55, 0, 0.2, 1); }
@@ -351,6 +365,13 @@ const fall = (seed, n, mk, cls = '') => { const r = rng(seed); let s = ''; for (
 const rain = (seed, n) => fall(seed, n, (x, y) => `<line x1="${x}" y1="${y}" x2="${x - 12}" y2="${y + 44}" stroke="rgba(205,225,255,.55)" stroke-width="2" stroke-linecap="round"/>`, 'fast');
 const snow = (seed, n) => fall(seed, n, (x, y, r) => `<circle cx="${x}" cy="${y}" r="${(r() * 3 + 1.5).toFixed(1)}" fill="#fff" opacity=".85"/>`);
 const bits = (seed, n, fn) => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) { const sc = .5 + r() * 1.2; s += `<g transform="translate(${r() * 1600 | 0} ${r() * 900 | 0}) rotate(${r() * 360 | 0}) scale(${sc.toFixed(2)})"><g class="bob" style="animation-delay:${(r() * -8).toFixed(1)}s">${fn(r)}</g></g>`; } return s; };
+const crest = (seed, base, amp, jag, fill, rim, rw = 3) => { const d = rd(seed, base, amp, jag); return `<path d="${d}" fill="${fill}"/><path d="${d}" fill="none" stroke="${rim}" stroke-width="${rw}" stroke-linejoin="round" opacity=".85"/>`; };
+const rays = (x, y, c, n = 14, op = .16) => { let t = ''; for (let k = 0; k < n; k++) { const a = k / n * 6.2832, w = .07; t += `<path d="M${x} ${y} L${(x + Math.cos(a - w) * 2400) | 0} ${(y + Math.sin(a - w) * 2400) | 0} L${(x + Math.cos(a + w) * 2400) | 0} ${(y + Math.sin(a + w) * 2400) | 0}Z"/>`; } return `<g class="spin" style="transform-origin:${x}px ${y}px" fill="${c}" opacity="${op}">${t}</g>`; };
+const flock = (x, y, n, c, sc = 1) => { const r = rng(x + y); let t = ''; for (let k = 0; k < n; k++) { const dx = k * 46 + r() * 20, dy = (k % 2 ? 1 : -1) * k * 11 + r() * 14, s = (.6 + r() * .7) * sc; t += `<g transform="translate(${dx | 0} ${dy | 0}) scale(${s.toFixed(2)})"><path class="flap" d="M-18 0 Q-9 -14 0 0 Q9 -14 18 0" fill="none" stroke="${c}" stroke-width="3.2" stroke-linecap="round" style="animation-delay:${(-r() * 2).toFixed(2)}s"/></g>`; } return `<g class="fly"><g transform="translate(${x} ${y})">${t}</g></g>`; };
+const spark = (seed, n, y0, y1, c) => { const r = rng(seed); let t = ''; for (let k = 0; k < n; k++) t += `<circle class="tw2" cx="${r() * 1600 | 0}" cy="${(y0 + r() * (y1 - y0)) | 0}" r="${(1.4 + r() * 2.6).toFixed(1)}" fill="${c}" style="animation-delay:${(-r() * 4).toFixed(2)}s"/>`; return t; };
+const blades = (seed, n, y0, y1, c) => { const r = rng(seed); let t = ''; for (let k = 0; k < n; k++) { const x = r() * 1700 | 0, y = (y0 + r() * (y1 - y0)) | 0, h = 14 + r() * 26; t += `<path d="M${x} ${y} q${(r() * 8 - 4).toFixed(0)} ${(-h / 2) | 0} ${(r() * 10 - 5).toFixed(0)} ${-h | 0}" stroke="${c}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>`; } return `<g class="sway2">${t}</g>`; };
+const horse = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><path d="M-34 -30 q-4 -26 18 -28 l8 -24 l7 22 q22 -2 36 6 l20 -10 l-6 16 q-6 18 -8 36 l-6 0 l2 -24 q-16 4 -34 2 l-2 22 l-7 0 l-2 -22 q-8 2 -14 4 l-3 20 l-7 0 z"/><path d="M38 -52 l22 -6 l8 8 l-6 12 q-14 2 -24 -6z"/></g>`;
+const eagle = (x, y, s, c) => `<g class="fly" style="animation-duration:60s"><g transform="translate(${x} ${y}) scale(${s})"><path class="flap" d="M-60 6 Q-30 -22 0 -2 Q30 -22 60 6 Q30 -6 0 8 Q-30 -6 -60 6Z" fill="${c}"/></g></g>`;
 const bean = () => `<ellipse rx="27" ry="17" fill="#5a3320"/><path d="M-23 0 Q0 -9 23 0" stroke="#2b160d" stroke-width="3" fill="none"/>`;
 const dumpling = () => `<circle r="23" fill="#f4e5c8"/><path d="M-15 -14 Q0 -28 15 -14 M-19 -4 Q0 -22 19 -4 M-21 6 Q0 -14 21 6" stroke="#cdb784" stroke-width="2.5" fill="none"/>`;
 const steam = (seed, n, c = 'rgba(255,255,255,.18)') => { const r = rng(seed); let s = ''; for (let k = 0; k < n; k++) s += `<circle class="bob" style="animation-delay:${(r() * -8).toFixed(1)}s" cx="${r() * 1600 | 0}" cy="${300 + r() * 600 | 0}" r="${40 + r() * 90 | 0}" fill="${c}"/>`; return s; };
@@ -372,11 +393,11 @@ const SCENES = {
     L(12, mist(0, 900, '#0a1030', .25) + birds(5, 5, 130, 360, '#0a1030')),
     L(30, ridge(14, 905, 260, 1, 'rgba(7,11,24,.88)'))],
   geoCO: () => [
-    L(0, sky('#ffe0a8', '#f29b6b', '#4a4f95') + sun(1180, 330, 62, '#fff3cf') + clouds(2, 4, 120, 300, '#ffe9d0', .6)),
-    L(8, peaks(5, 620, 330, '#8392bd', '#fff')),
-    L(18, mist(430, 240, '#ffd9b0', .5) + ridge(9, 730, 280, 1, '#4a7566')),
-    L(32, ridge(12, 830, 250, 1, '#2d6a4a') + mist(600, 260, '#ffffff', .22)),
-    L(54, ridge(17, 915, 180, 0, '#0f3a29') + palm(1380, 640, .8, '#06241a'))],
+    L(0, sky('#ffd58a', '#ff9e7a', '#3b4a9a') + rays(1180, 330, '#fff1c8', 16, .17) + sun(1180, 330, 58, '#fff6d8') + clouds(2, 5, 110, 320, '#fff0da', .7) + flock(380, 230, 7, '#3a2a4a')),
+    L(8, peaks(5, 640, 360, '#6f80b8', '#ffffff') + spark(41, 14, 280, 520, '#ffffff')),
+    L(16, crest(9, 735, 300, 1, '#4b5fa0', '#ffd9a8', 3)),
+    L(26, crest(12, 820, 270, 1, '#1f7a52', '#c6ff9e', 3) + `<path d="M520 900 C540 800 640 790 700 740 S880 690 900 640" stroke="#8fe3ff" stroke-width="9" fill="none" stroke-linecap="round" opacity=".85"/><path class="dash" d="M520 900 C540 800 640 790 700 740 S880 690 900 640" stroke="#ffffff" stroke-width="3" fill="none" stroke-dasharray="14 26" opacity=".9"/>`),
+    L(40, crest(17, 905, 210, 0, '#0b3d2a', '#7dffb0', 3) + palm(240, 650, 1, '#04180f') + palm(1390, 610, .9, '#04180f') + blades(23, 60, 700, 900, '#6dff9f') + spark(57, 22, 380, 880, '#ffe9a6'))],
   weatherCO: () => [
     L(0, sky('#2b82d6', '#7cc3ff', '#d6efff') + sun(1250, 240, 70, '#fff6c9')),
     L(8, clouds(4, 7, 100, 420, '#ffffff', .85)),
@@ -410,11 +431,11 @@ const SCENES = {
     L(14, clouds(9, 4, 120, 350, '#ffffff', .22) + birds(12, 4, 160, 420, '#050914')),
     L(32, ridge(61, 905, 250, 0, 'rgba(7,11,24,.88)') + ger(1300, 780, 1.4, '#e9dcc6', '#fff', '#f2b84b', true))],
   geoMN: () => [
-    L(0, sky('#3b82d6', '#9cc9f5', '#fff2d2') + sun(260, 300, 55, '#fff6c9') + clouds(3, 6, 120, 360, '#ffffff', .8)),
-    L(8, peaks(71, 600, 350, '#7584a8', '#ffffff')),
-    L(18, mist(420, 220, '#fff2d2', .45) + ridge(72, 740, 190, 0, '#b8b36a')),
-    L(30, ridge(73, 830, 150, 0, '#c9a45a') + ger(1180, 770, .8)),
-    L(50, ridge(74, 915, 170, 0, '#e0b872') + ridge(75, 940, 120, 0, '#c99a52'))],
+    L(0, sky('#1f6fd0', '#7fb9f2', '#fff0cc') + rays(260, 300, '#ffffff', 16, .14) + sun(260, 300, 52, '#fffbe0') + clouds(3, 7, 90, 340, '#ffffff', .92) + eagle(900, 250, 1.1, '#1a2438')),
+    L(8, peaks(71, 610, 380, '#5d7099', '#ffffff') + spark(43, 12, 240, 520, '#ffffff')),
+    L(16, crest(72, 735, 200, 0, '#8fae5a', '#eaf7a8', 3) + blades(31, 40, 640, 740, '#cfe38a')),
+    L(28, crest(73, 825, 150, 0, '#d7b25e', '#fff0b0', 3) + ger(1180, 770, .8) + ger(1290, 790, .6, '#f3efe6', '#ffffff', '#c0392b', true) + horse(760, 800, .75, '#3b2a1c') + horse(850, 808, .6, '#5a3a22') + horse(690, 806, .55, '#2a1d14')),
+    L(44, crest(74, 915, 175, 0, '#e8bb6c', '#fff3c4', 3) + crest(75, 945, 120, 0, '#c98f45', '#ffe2a0', 3) + blades(37, 90, 760, 900, '#8b6a2b'))],
   weatherMN: () => [
     L(0, sky('#1b5fc4', '#6aa8ee', '#cfe6ff') + sun(1280, 200, 65, '#fffbe0')),
     L(8, clouds(15, 5, 100, 330, '#ffffff', .85)),
@@ -478,14 +499,14 @@ const SLIDES = [
   { type: 'hero', hero: 1, accent: GOLD, eyebrow: 'Country Information', title: '<span class="c1">Colombia</span><span class="of">&amp;</span><span class="c2">Mongolia</span>', lead: 'Two countries on opposite sides of the world: their land, weather, people, food and traditions.', hint: 'Press \u2192 or use the arrows to begin' },
 
   { type: 'cols', country: 'colombia', scene: 'flagCO', photo: 'bogota', accent: CO, eyebrow: 'Colombia', title: 'Welcome to Colombia', ghost: 'CO', cols: [['Capital city', 'Bogotá', 'High in the Andes mountains'], ['Language', 'Spanish', 'Spoken across the whole country'], ['Currency', 'Colombian peso', 'Used for all everyday payments'], ['Coasts', 'Two seas', 'Caribbean and Pacific']] },
-  { type: 'list', country: 'colombia', scene: 'geoCO', map: 'mapco', accent: CO, eyebrow: 'Colombia — 01 / 05', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
+  { type: 'list', country: 'colombia', scene: 'geoCO', clear: 1, map: 'mapco', accent: CO, eyebrow: 'Colombia — 01 / 05', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
   { type: 'list', country: 'colombia', scene: 'weatherCO', photo: 'misty', accent: CO, eyebrow: 'Colombia — 02 / 05', title: 'What is the weather like?', ghost: '02', items: [['', 'Tropical climate.'], ['', 'Warm weather in many regions.'], ['', 'Two rainy seasons in some areas.']] },
   { type: 'list', country: 'colombia', scene: 'foodCO', photo: 'restaurant', accent: CO, eyebrow: 'Colombia — 03 / 05', title: 'Tell me about the food', ghost: '03', items: [['', 'Arepas and empanadas.'], ['', 'Bandeja paisa.'], ['', 'Coffee is very popular.']] },
   { type: 'list', country: 'colombia', scene: 'cultureCO', photo: 'palenqueras', accent: CO, eyebrow: 'Colombia — 04 / 05', title: 'Tell me about the culture', ghost: '04', items: [['', 'Family is very important.'], ['', 'People are friendly and welcoming.'], ['', 'Music and dancing are popular.'], ['', 'Cumbia, vallenato, and salsa.']] },
   { type: 'list', country: 'colombia', scene: 'lessonCO', photo: 'fansco', accent: CO, eyebrow: 'Colombia — 05 / 05', title: 'One important thing I learned growing up', ghost: '05', items: [['', 'Respect other people.'], ['', 'Family always comes first.'], ['', 'Be kind and help others.'], ['', 'Never give up.']] },
 
   { type: 'cols', country: 'mongolia', scene: 'flagMN', photo: 'ulaanbaatar', accent: MN, eyebrow: 'Mongolia', title: 'Welcome to Mongolia', ghost: 'MN', cols: [['Capital city', 'Ulaanbaatar', 'Home to about half of the \u2248 3.5 million people'], ['Language', 'Mongolian', 'Written in Cyrillic today'], ['Currency', 'T\u00f6gr\u00f6g', 'Mongolian national money'], ['Neighbours', 'Russia & China', 'Landlocked, 1.56 million km\u00b2']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'geoMN', map: 'mapmn', accent: MN, eyebrow: 'Mongolia — 01 / 05', title: 'Geography (Terrain)', ghost: '01', items: [['Landlocked.', 'Russia is to the north and China to the south, east and west.'], ['Huge and empty.', '19th largest country in the world, but very few people.'], ['Altai Mountains.', 'West: snowy peaks, the highest point is 4,374 m.'], ['Gobi Desert.', 'South: about one third of the country, dunes and rocky plains.'], ['Steppe.', 'Endless grassland in the centre and east.'], ['Lakes and forest.', 'North: Lake Khövsgöl and taiga forest.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'geoMN', clear: 1, map: 'mapmn', accent: MN, eyebrow: 'Mongolia — 01 / 05', title: 'Geography (Terrain)', ghost: '01', items: [['Landlocked.', 'Russia is to the north and China to the south, east and west.'], ['Huge and empty.', '19th largest country in the world, but very few people.'], ['Altai Mountains.', 'West: snowy peaks, the highest point is 4,374 m.'], ['Gobi Desert.', 'South: about one third of the country, dunes and rocky plains.'], ['Steppe.', 'Endless grassland in the centre and east.'], ['Lakes and forest.', 'North: Lake Khövsgöl and taiga forest.']] },
   { type: 'list', dense: 1, country: 'mongolia', scene: 'weatherMN', photo: 'sleigh', accent: MN, eyebrow: 'Mongolia — 02 / 05', title: 'What is the weather like?', ghost: '02', items: [['Extreme climate.', 'Very long cold winters and short warm summers.'], ['Winter.', 'January averages about −20°C and nights can fall below −40°C.'], ['Summer.', 'June to August is pleasant; the Gobi can reach +40°C.'], ['Land of the Eternal Blue Sky.', 'More than 260 sunny days every year.'], ['Dzud.', 'A deadly winter after a dry summer: snow covers the grass and animals starve.'], ['Dry.', 'Little rain, and most of it falls in summer.']] },
   { type: 'list', dense: 1, country: 'mongolia', scene: 'foodMN', photo: 'mnrestaurant', accent: MN, eyebrow: 'Mongolia — 03 / 05', title: 'Tell me about the food', ghost: '03', items: [['Buuz.', 'Steamed mutton dumplings; the star of Tsagaan Sar, the Lunar New Year.'], ['Khuushuur.', 'Large fried meat pancakes, a Naadam favourite.'], ['Suutei tsai.', 'Salty milk tea, drunk many times a day and offered to every guest.'], ['Airag.', 'Fermented mare’s milk, the classic summer drink.'], ['Aaruul and boortsog.', 'Dried milk curds and fried biscuits, perfect with tea.'], ['Why so much meat and milk?', 'Long winters and nomadic life.']] },
   { type: 'list', dense: 1, country: 'mongolia', scene: 'cultureMN', photo: 'gerinside', accent: MN, eyebrow: 'Mongolia — 04 / 05', title: 'Tell me about the culture', ghost: '04', items: [['Nomadic life.', 'About a quarter of people still live as herders in a ger (a round felt home).'], ['Naadam.', 'July 11–13: wrestling, horse racing and archery.'], ['Music.', 'Morin khuur (horse-head fiddle), throat singing (khoomei) and long songs.'], ['Hospitality.', 'Guests are always welcome and traditionally the ger door stays unlocked.'], ['Beliefs.', 'Tibetan Buddhism and old shamanist traditions.'], ['History.', 'Home of Chinggis Khaan, founder of the Mongol Empire.']] },
@@ -624,7 +645,7 @@ function go(n) {
   scenes.forEach(el => el.classList.toggle('on', el === scenes[n])); if (s.earth) { if (earthEl.dataset.state !== s.earth) earthChange = performance.now(); earthEl.dataset.state = s.earth; }
   dots.forEach((d, i) => d.setAttribute('aria-current', i === n ? 'true' : 'false'));
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.country === s.country)));
-  app.style.setProperty('--accent', s.accent); accentRGB = hex2rgb(s.accent); app.classList.toggle('is-hero', !!s.hero); app.classList.toggle('is-earth', !!s.earth);
+  app.style.setProperty('--accent', s.accent); accentRGB = hex2rgb(s.accent); app.classList.toggle('is-hero', !!s.hero); app.classList.toggle('is-earth', !!s.earth); app.classList.toggle('is-clear', !!s.clear);
   $('#prev').disabled = n === 0; $('#next').disabled = n === SLIDES.length - 1;
   try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) { }
 }
