@@ -159,6 +159,96 @@ h2 { margin: 0 0 1.1rem; font: 700 clamp(2.1rem, 5vw, 3.6rem)/1 var(--display); 
   *, *::before, *::after { animation: none !important; transition-duration: 0.01s !important; }
   .ly, .panel, .ghost { transform: none !important; }
 }
+
+/* ===== v2: glass, photo frames, reel ===== */
+.panel {
+  border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03) 55%), rgba(8, 12, 30, 0.5);
+  backdrop-filter: blur(20px) saturate(1.35); -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.panel::before { content: ''; position: absolute; left: 1.6rem; right: 1.6rem; top: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+h2 .w { display: inline-block; }
+.slide.active h2 .w { animation: word 0.95s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(0.12s + var(--i) * 0.07s); }
+@keyframes word { from { opacity: 0; filter: blur(14px); translate: 0 0.45em; } to { opacity: 1; filter: blur(0); translate: 0 0; } }
+.facts li {
+  margin: 0.5rem 0; padding: 0.6rem 1rem 0.6rem 2.5rem; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: transform 0.3s, border-color 0.3s;
+}
+.facts li:hover { transform: translateX(6px); border-color: var(--accent); }
+.facts li::before { left: 1rem; top: 1.2rem; }
+.facts.dense li { margin: 0.36rem 0; padding-block: 0.42rem; }
+.facts.dense li::before { top: 0.98rem; }
+.slide.active .facts li { animation: li 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(0.3s + var(--i, 0) * 0.09s); }
+@keyframes li { from { opacity: 0; translate: -18px 0; filter: blur(8px); } to { opacity: 1; translate: 0 0; filter: blur(0); } }
+.cols li { padding: 1rem 1.1rem; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12); }
+.slide:not(.active) * { animation-play-state: paused !important; }
+
+/* photo background: blurred copy of the photo, drifting colour glows */
+.scene.photo { background: #060912; }
+.ph-bg { position: absolute; inset: -8%; background: center / cover no-repeat; filter: blur(26px) brightness(0.62) saturate(1.4); transform: translate3d(calc(var(--mx) * -22px), calc(var(--my) * -12px), 0); animation: phdrift 26s ease-in-out infinite alternate; }
+@keyframes phdrift { from { scale: 1; translate: 0 0; } to { scale: 1.14; translate: -2.5% -1.5%; } }
+.aur { position: absolute; width: 62vmax; height: 62vmax; border-radius: 50%; mix-blend-mode: screen; opacity: 0.32; filter: blur(50px); animation: aur 18s ease-in-out infinite alternate; }
+.aur.a1 { left: -16vmax; top: -22vmax; background: radial-gradient(circle, var(--accent), transparent 65%); }
+.aur.a2 { right: -22vmax; bottom: -30vmax; background: radial-gradient(circle, #8a63ff, transparent 65%); animation-delay: -9s; opacity: 0.26; }
+@keyframes aur { from { translate: 0 0; scale: 1; } to { translate: 12vw 8vh; scale: 1.25; } }
+
+/* photo frame: glass bezel, tilt, unveil, sheen, floating glass chips */
+.slide.has-shot .panel { max-width: min(44rem, 46vw); }
+.slide.has-shot .panel.wide { max-width: min(50rem, 46vw); }
+.slide.has-shot .ghost { display: none; }
+.shot { position: absolute; z-index: 1; top: 84px; bottom: 96px; right: clamp(16px, 6vw, 110px); margin: 0; display: flex; align-items: center; pointer-events: none; }
+.shot-in {
+  --hmax: min(calc(100vh - 210px), 740px); position: relative; width: min(33vw, calc(var(--hmax) * var(--ar))); aspect-ratio: var(--ar);
+  transform: perspective(1300px) rotateY(calc(var(--mx) * -7deg)) rotateX(calc(var(--my) * 5deg)) translate3d(calc(var(--mx) * -14px), calc(var(--my) * -8px), 0);
+}
+.slide.active .shot-in { animation: floaty 9s ease-in-out 1.6s infinite alternate; }
+@keyframes floaty { from { translate: 0 -8px; } to { translate: 0 10px; } }
+.frame { position: absolute; inset: 0; border-radius: 24px; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.4), 0 0 0 10px rgba(255, 255, 255, 0.08); }
+.clip { position: absolute; inset: 0; overflow: hidden; border-radius: 24px; clip-path: inset(100% 0 0 0 round 24px); }
+.slide.active .clip { animation: unveil 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both; }
+@keyframes unveil { from { clip-path: inset(100% 0 0 0 round 24px); } to { clip-path: inset(0 0 0 0 round 24px); } }
+.clip img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.slide.active .clip img { animation: imgin 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both, kb 22s ease-in-out 2s infinite alternate; }
+@keyframes imgin { from { scale: 1.45; } to { scale: 1; } }
+@keyframes kb { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.1) translate(-1.5%, -1.2%); } }
+.sheen { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.3) 50%, transparent 62%); translate: -130% 0; }
+.slide.active .sheen { animation: sheen 7s ease-in-out 2s infinite; }
+@keyframes sheen { 0% { translate: -130% 0; } 35%, 100% { translate: 130% 0; } }
+.chip, .chip2, .rb, .rcap {
+  position: absolute; display: flex; align-items: center; gap: 0.6rem; font: 700 0.78rem/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: #fff; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.34); border-radius: 99px;
+  backdrop-filter: blur(14px) saturate(1.5); -webkit-backdrop-filter: blur(14px) saturate(1.5); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.chip { left: -2.4rem; bottom: 2.2rem; padding: 0.8rem 1.1rem; translate: calc(var(--mx) * 16px) calc(var(--my) * 8px); }
+.chip::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.chip2 { right: -1.4rem; top: 2rem; padding: 0.65rem 1rem; translate: calc(var(--mx) * 22px) calc(var(--my) * 12px); }
+.slide.active .chip { animation: chipin 1s cubic-bezier(0.2, 0.7, 0.2, 1) 1s both; }
+.slide.active .chip2 { animation: chipin 1s cubic-bezier(0.2, 0.7, 0.2, 1) 1.25s both; }
+@keyframes chipin { from { opacity: 0; scale: 0.8; filter: blur(8px); } to { opacity: 1; scale: 1; filter: blur(0); } }
+
+/* reel (gallery) */
+.slide.gal .panel { margin-block: 0 auto; }
+.reel { position: absolute; z-index: 2; left: 0; right: 0; bottom: 84px; height: min(35vh, 330px); overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+.track { display: flex; width: max-content; height: 100%; padding: 14px 0; animation: marq 80s linear infinite; }
+.reel:hover .track { animation-play-state: paused !important; }
+@keyframes marq { to { transform: translateX(-50%); } }
+.rc { position: relative; flex: none; height: 100%; aspect-ratio: var(--ar); margin-right: 1.3rem; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.34); box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5); transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), border-color 0.3s; }
+.rc:hover { transform: translateY(-10px) scale(1.04); border-color: var(--accent); }
+.rc img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s ease; }
+.rc:hover img { transform: scale(1.08); }
+.rb { left: 0.7rem; top: 0.7rem; padding: 0.5rem 0.8rem; font-size: 0.68rem; }
+.rb.co { box-shadow: 0 0 0 1px #fcd116 inset, 0 10px 30px rgba(0, 0, 0, 0.35); }
+.rb.mn { box-shadow: 0 0 0 1px #7cc4ff inset, 0 10px 30px rgba(0, 0, 0, 0.35); }
+.rcap { left: 0.7rem; right: auto; bottom: 0.7rem; padding: 0.6rem 0.9rem; font-size: 0.7rem; }
+
+@media (max-width: 900px) {
+  .shot { display: none; }
+  .slide.has-shot .panel, .slide.has-shot .panel.wide { max-width: 44rem; }
+  .ph-bg { filter: blur(8px) brightness(0.5) saturate(1.3); }
+  .reel { height: 34vh; }
+}
 </style>
 </head>
 <body>
@@ -312,26 +402,36 @@ const SCENES = {
 };
 
 /* ================= content ================= */
+const PHOTOS = {
+  bogota: { ar: 0.5581, tag: 'Capital city', cap: 'Bogot\u00e1 at night', c: 'co' },
+  guatape: { ar: 0.6667, tag: 'Lakes & rock', cap: 'Guatap\u00e9, Antioquia', c: 'co' },
+  restaurant: { ar: 0.5625, tag: 'Colombian pride', cap: 'A Colombian restaurant', c: 'co' },
+  palenqueras: { ar: 0.5883, tag: 'Tradition', cap: 'Palenqueras in Cartagena', c: 'co' },
+  ulaanbaatar: { ar: 0.8541, tag: 'Capital city', cap: 'Ulaanbaatar in winter', c: 'mn' },
+  sleigh: { ar: 1.4989, tag: 'Winter', cap: 'Horse sleigh on the ice', c: 'mn' },
+  gerinside: { ar: 0.5581, tag: 'Nomadic home', cap: 'Inside a ger', c: 'mn' }
+};
 const CO = '#fcd116', MN = '#7cc4ff', GOLD = '#f2b84b';
 const SLIDES = [
   { type: 'title', scene: 'title', accent: GOLD, eyebrow: 'Country Information', title: '<span>Colombia</span><span class="of">&amp;</span><span>Mongolia</span>', lead: 'Two countries on opposite sides of the world: their land, weather, people, food and traditions.', hint: 'Press → or use the arrows to begin' },
 
-  { type: 'cols', country: 'colombia', scene: 'flagCO', accent: CO, eyebrow: 'Colombia', title: 'Welcome to Colombia', ghost: 'CO', cols: [['Capital city', 'Bogotá', 'High in the Andes mountains'], ['Language', 'Spanish', 'Spoken across the whole country'], ['Currency', 'Colombian peso', 'Used for all everyday payments'], ['Coasts', 'Two seas', 'Caribbean and Pacific']] },
-  { type: 'list', country: 'colombia', scene: 'geoCO', accent: CO, eyebrow: 'Colombia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
+  { type: 'cols', country: 'colombia', scene: 'flagCO', photo: 'bogota', accent: CO, eyebrow: 'Colombia', title: 'Welcome to Colombia', ghost: 'CO', cols: [['Capital city', 'Bogotá', 'High in the Andes mountains'], ['Language', 'Spanish', 'Spoken across the whole country'], ['Currency', 'Colombian peso', 'Used for all everyday payments'], ['Coasts', 'Two seas', 'Caribbean and Pacific']] },
+  { type: 'list', country: 'colombia', scene: 'geoCO', photo: 'guatape', accent: CO, eyebrow: 'Colombia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
   { type: 'list', country: 'colombia', scene: 'weatherCO', accent: CO, eyebrow: 'Colombia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['', 'Tropical climate.'], ['', 'Warm weather in many regions.'], ['', 'Two rainy seasons in some areas.']] },
   { type: 'list', country: 'colombia', scene: 'socialCO', accent: CO, eyebrow: 'Colombia — 03 / 06', title: 'Any social problems?', ghost: '03', items: [['', 'Poverty and inequality.'], ['', 'Violence in some areas.'], ['', 'Unemployment.']] },
-  { type: 'list', country: 'colombia', scene: 'foodCO', accent: CO, eyebrow: 'Colombia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['', 'Arepas and empanadas.'], ['', 'Bandeja paisa.'], ['', 'Coffee is very popular.']] },
-  { type: 'list', country: 'colombia', scene: 'cultureCO', accent: CO, eyebrow: 'Colombia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['', 'Family is very important.'], ['', 'People are friendly and welcoming.'], ['', 'Music and dancing are popular.'], ['', 'Cumbia, vallenato, and salsa.']] },
+  { type: 'list', country: 'colombia', scene: 'foodCO', photo: 'restaurant', accent: CO, eyebrow: 'Colombia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['', 'Arepas and empanadas.'], ['', 'Bandeja paisa.'], ['', 'Coffee is very popular.']] },
+  { type: 'list', country: 'colombia', scene: 'cultureCO', photo: 'palenqueras', accent: CO, eyebrow: 'Colombia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['', 'Family is very important.'], ['', 'People are friendly and welcoming.'], ['', 'Music and dancing are popular.'], ['', 'Cumbia, vallenato, and salsa.']] },
   { type: 'list', country: 'colombia', scene: 'lessonCO', accent: CO, eyebrow: 'Colombia — 06 / 06', title: 'One important thing I learned growing up', ghost: '06', items: [['', 'Respect other people.'], ['', 'Family always comes first.'], ['', 'Be kind and help others.'], ['', 'Never give up.']] },
 
-  { type: 'cols', country: 'mongolia', scene: 'flagMN', accent: MN, eyebrow: 'Mongolia', title: 'Welcome to Mongolia', ghost: 'MN', cols: [['Capital city', 'Ulaanbaatar', 'Home to about half of the \u2248 3.5 million people'], ['Language', 'Mongolian', 'Written in Cyrillic today'], ['Currency', 'T\u00f6gr\u00f6g', 'Mongolian national money'], ['Neighbours', 'Russia & China', 'Landlocked, 1.56 million km\u00b2']] },
+  { type: 'cols', country: 'mongolia', scene: 'flagMN', photo: 'ulaanbaatar', accent: MN, eyebrow: 'Mongolia', title: 'Welcome to Mongolia', ghost: 'MN', cols: [['Capital city', 'Ulaanbaatar', 'Home to about half of the \u2248 3.5 million people'], ['Language', 'Mongolian', 'Written in Cyrillic today'], ['Currency', 'T\u00f6gr\u00f6g', 'Mongolian national money'], ['Neighbours', 'Russia & China', 'Landlocked, 1.56 million km\u00b2']] },
   { type: 'list', dense: 1, country: 'mongolia', scene: 'geoMN', accent: MN, eyebrow: 'Mongolia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['Landlocked.', 'Russia is to the north and China to the south, east and west.'], ['Huge and empty.', '19th largest country in the world, but very few people.'], ['Altai Mountains.', 'West: snowy peaks, the highest point is 4,374 m.'], ['Gobi Desert.', 'South: about one third of the country, dunes and rocky plains.'], ['Steppe.', 'Endless grassland in the centre and east.'], ['Lakes and forest.', 'North: Lake Khövsgöl and taiga forest.']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'weatherMN', accent: MN, eyebrow: 'Mongolia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['Extreme climate.', 'Very long cold winters and short warm summers.'], ['Winter.', 'January averages about −20°C and nights can fall below −40°C.'], ['Summer.', 'June to August is pleasant; the Gobi can reach +40°C.'], ['Land of the Eternal Blue Sky.', 'More than 260 sunny days every year.'], ['Dzud.', 'A deadly winter after a dry summer: snow covers the grass and animals starve.'], ['Dry.', 'Little rain, and most of it falls in summer.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'weatherMN', photo: 'sleigh', accent: MN, eyebrow: 'Mongolia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['Extreme climate.', 'Very long cold winters and short warm summers.'], ['Winter.', 'January averages about −20°C and nights can fall below −40°C.'], ['Summer.', 'June to August is pleasant; the Gobi can reach +40°C.'], ['Land of the Eternal Blue Sky.', 'More than 260 sunny days every year.'], ['Dzud.', 'A deadly winter after a dry summer: snow covers the grass and animals starve.'], ['Dry.', 'Little rain, and most of it falls in summer.']] },
   { type: 'list', dense: 1, country: 'mongolia', scene: 'socialMN', accent: MN, eyebrow: 'Mongolia — 03 / 06', title: 'Any social problems?', ghost: '03', items: [['Air pollution.', 'In winter, coal smoke from ger districts makes Ulaanbaatar one of the most polluted capitals.'], ['Poverty and inequality.', 'Many families in the ger districts live on low income.'], ['Unemployment.', 'Not enough stable jobs; the economy depends heavily on mining.'], ['Climate pressure.', 'After dzud, herders lose animals and move to the edge of the capital.'], ['Crowded capital.', 'About half of the country lives in one city.']] },
   { type: 'list', dense: 1, country: 'mongolia', scene: 'foodMN', accent: MN, eyebrow: 'Mongolia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['Buuz.', 'Steamed mutton dumplings; the star of Tsagaan Sar, the Lunar New Year.'], ['Khuushuur.', 'Large fried meat pancakes, a Naadam favourite.'], ['Suutei tsai.', 'Salty milk tea, drunk many times a day and offered to every guest.'], ['Airag.', 'Fermented mare’s milk, the classic summer drink.'], ['Aaruul and boortsog.', 'Dried milk curds and fried biscuits, perfect with tea.'], ['Why so much meat and milk?', 'Long winters and nomadic life.']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'cultureMN', accent: MN, eyebrow: 'Mongolia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['Nomadic life.', 'About a quarter of people still live as herders in a ger (a round felt home).'], ['Naadam.', 'July 11–13: wrestling, horse racing and archery.'], ['Music.', 'Morin khuur (horse-head fiddle), throat singing (khoomei) and long songs.'], ['Hospitality.', 'Guests are always welcome and traditionally the ger door stays unlocked.'], ['Beliefs.', 'Tibetan Buddhism and old shamanist traditions.'], ['History.', 'Home of Chinggis Khaan, founder of the Mongol Empire.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'cultureMN', photo: 'gerinside', accent: MN, eyebrow: 'Mongolia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['Nomadic life.', 'About a quarter of people still live as herders in a ger (a round felt home).'], ['Naadam.', 'July 11–13: wrestling, horse racing and archery.'], ['Music.', 'Morin khuur (horse-head fiddle), throat singing (khoomei) and long songs.'], ['Hospitality.', 'Guests are always welcome and traditionally the ger door stays unlocked.'], ['Beliefs.', 'Tibetan Buddhism and old shamanist traditions.'], ['History.', 'Home of Chinggis Khaan, founder of the Mongol Empire.']] },
   { type: 'list', country: 'mongolia', scene: 'lessonMN', accent: MN, eyebrow: 'Mongolia — 06 / 06', title: 'One important thing I learned growing up', ghost: '06', items: [['', 'Respect your elders and your guests.'], ['', 'Family and community come first.'], ['', 'Be strong like the steppe: adapt to hard times.'], ['', 'Never give up. Every winter ends.']] },
 
+  { type: 'gallery', scene: 'compare', accent: GOLD, eyebrow: 'Moments', title: 'Colombia &amp; Mongolia in pictures', lead: 'Seven moments from two countries. Hover the strip to pause it.' },
   { type: 'compare', scene: 'compare', accent: GOLD, eyebrow: 'Side by side', title: 'Two lands, one world', ghost: 'VS', rows: [['Terrain', 'Andes, Amazon, two coasts', 'Steppe, Gobi, Altai peaks'], ['Weather', 'Tropical, warm, two rainy seasons', '−40°C winters to +40°C Gobi summers'], ['Food', 'Arepas, bandeja paisa, coffee', 'Buuz, suutei tsai, airag'], ['Culture', 'Cumbia, vallenato, salsa', 'Throat singing, Naadam'], ['Lesson', 'Family always comes first', 'Respect elders and guests']] },
   { type: 'title', scene: 'thanks', accent: GOLD, eyebrow: 'Thank you', title: '<span>Questions?</span>', lead: 'Colombia and Mongolia look very different, but family, respect and kindness matter in both.', hint: 'Use ← to go back' }
 ];
@@ -340,18 +440,30 @@ const SLIDES = [
 const $ = s => document.querySelector(s);
 const app = $('#app'), world = $('#world'), deck = $('#deck'), dotsEl = $('#dots');
 const esc = s => s.replace(/&(?!amp;)/g, '&amp;');
+const words = t => t.split(' ').map((w, i) => `<span class="w" style="--i:${i}">${w}</span>`).join(' ');
 function panelHTML(s) {
   const head = `<p class="eyebrow">${s.eyebrow}</p>`;
   if (s.type === 'title') return `<div class="panel wide">${head}<h1>${s.title}</h1><p class="lead">${s.lead}</p><p class="hint">${s.hint}</p></div>`;
-  if (s.type === 'cols') return `<div class="panel wide">${head}<h2>${s.title}</h2><ul class="cols">${s.cols.map(c => `<li><span class="k">${c[0]}</span><span class="v">${c[1]}</span><span class="sub">${c[2]}</span></li>`).join('')}</ul></div>`;
-  if (s.type === 'compare') return `<div class="panel wide">${head}<h2>${s.title}</h2><div class="cmp" role="table"><span class="h"></span><span class="h co">Colombia</span><span class="h mn">Mongolia</span>${s.rows.map(r => `<span class="l">${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span>`).join('')}</div></div>`;
-  return `<div class="panel">${head}<h2>${s.title}</h2><ul class="facts${s.dense ? ' dense' : ''}">${s.items.map(it => `<li>${it[0] ? `<b>${it[0]}</b> ` : ''}${it[1]}</li>`).join('')}</ul></div>`;
+  if (s.type === 'gallery') return `<div class="panel">${head}<h2>${words(s.title)}</h2><p class="lead">${s.lead}</p></div>`;
+  if (s.type === 'cols') return `<div class="panel wide">${head}<h2>${words(s.title)}</h2><ul class="cols">${s.cols.map(c => `<li><span class="k">${c[0]}</span><span class="v">${c[1]}</span><span class="sub">${c[2]}</span></li>`).join('')}</ul></div>`;
+  if (s.type === 'compare') return `<div class="panel wide">${head}<h2>${words(s.title)}</h2><div class="cmp" role="table"><span class="h"></span><span class="h co">Colombia</span><span class="h mn">Mongolia</span>${s.rows.map(r => `<span class="l">${r[0]}</span><span>${r[1]}</span><span>${r[2]}</span>`).join('')}</div></div>`;
+  return `<div class="panel">${head}<h2>${words(s.title)}</h2><ul class="facts${s.dense ? ' dense' : ''}">${s.items.map((it, i) => `<li style="--i:${i}">${it[0] ? `<b>${it[0]}</b> ` : ''}${it[1]}</li>`).join('')}</ul></div>`;
+}
+const shotHTML = k => { const p = PHOTOS[k]; return `<figure class="shot"><div class="shot-in" style="--ar:${p.ar}"><div class="frame"><div class="clip"><img src="img/${k}.webp" alt="${p.cap}" decoding="async"><i class="sheen"></i></div></div><figcaption class="chip">${p.cap}</figcaption><span class="chip2">${p.tag}</span></div></figure>`; };
+const photoScene = k => `<div class="ph-bg" style="background-image:url(img/${k}-bg.webp)"></div><div class="aur a1"></div><div class="aur a2"></div>`;
+function galleryHTML() {
+  const order = ['bogota', 'ulaanbaatar', 'guatape', 'sleigh', 'palenqueras', 'gerinside', 'restaurant'];
+  const row = order.map(k => { const p = PHOTOS[k]; return `<div class="rc" style="--ar:${p.ar}"><img src="img/${k}.webp" alt="${p.cap}" decoding="async"><span class="rb ${p.c}">${p.c === 'co' ? 'Colombia' : 'Mongolia'}</span><span class="rcap">${p.cap}</span></div>`; }).join('');
+  return `<div class="reel"><div class="track">${row}${row}</div></div>`;
 }
 const scenes = [], slides = [], dots = [];
 SLIDES.forEach((s, i) => {
-  const sc = document.createElement('div'); sc.className = 'scene'; sc.innerHTML = SCENES[s.scene]().join(''); world.appendChild(sc); scenes.push(sc);
-  const sl = document.createElement('section'); sl.className = 'slide'; sl.setAttribute('aria-label', s.title.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').trim());
-  sl.innerHTML = (s.ghost ? `<p class="ghost" aria-hidden="true">${s.ghost}</p>` : '') + panelHTML(s); deck.appendChild(sl); slides.push(sl);
+  const sc = document.createElement('div'); sc.className = 'scene' + (s.photo ? ' photo' : '');
+  sc.innerHTML = s.photo ? photoScene(s.photo) : SCENES[s.scene]().join(''); world.appendChild(sc); scenes.push(sc);
+  const sl = document.createElement('section'); sl.className = 'slide' + (s.photo ? ' has-shot' : '') + (s.type === 'gallery' ? ' gal' : '');
+  sl.setAttribute('aria-label', s.title.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').trim());
+  sl.innerHTML = (s.ghost ? `<p class="ghost" aria-hidden="true">${s.ghost}</p>` : '') + panelHTML(s) + (s.photo ? shotHTML(s.photo) : '') + (s.type === 'gallery' ? galleryHTML() : '');
+  deck.appendChild(sl); slides.push(sl);
   const d = document.createElement('button'); d.setAttribute('aria-label', 'Slide ' + (i + 1)); d.onclick = () => go(i); dotsEl.appendChild(d); dots.push(d);
 });
 const firstOf = c => SLIDES.findIndex(s => s.country === c);
