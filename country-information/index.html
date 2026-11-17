@@ -301,25 +301,15 @@ h1 .c1 { color: #fcd116; } h1 .c2 { color: #7cc4ff; }
 #app.is-clear .grade { opacity: 1; background: radial-gradient(120% 90% at 65% 40%, rgba(3, 5, 12, 0) 55%, rgba(3, 5, 12, 0.28) 100%), linear-gradient(90deg, rgba(4, 7, 18, 0.42) 0%, rgba(4, 7, 18, 0.12) 40%, rgba(4, 7, 18, 0) 66%); }
 .scene.earthscene { background: #02030a; }
 .earth { position: absolute; inset: 0; overflow: hidden; }
-.e-near, .e-far { position: absolute; inset: 0; }
-.e-near canvas, .e-far canvas { display: block; width: 100%; height: 100%; }
-.e-near { transform-origin: 50% 58%; transition: transform 3.4s cubic-bezier(0.55, 0, 0.2, 1), opacity 1.8s ease 0.2s; }
-.earthscene[data-state='far'] .e-near { transform: scale(0.45); opacity: 0; }
-.e-far { transform-origin: 73% 50%; transform: scale(3.6); opacity: 0; transition: transform 2.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.1s ease; }
-.earthscene[data-state='far'] .e-far { transform: scale(1); opacity: 1; transition: transform 3.6s cubic-bezier(0.5, 0, 0.15, 1), opacity 2s ease 0.6s; }
-.earth.moving .e-near, .earth.moving .e-far { animation: mblur 3.6s ease-in-out both; }
-@keyframes mblur { 0%, 100% { filter: blur(0) brightness(1); } 38% { filter: blur(4px) brightness(1.25); } }
 .e-stars { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.7; translate: calc(var(--mx) * -10px) calc(var(--my) * -6px); }
 .e-stars i { position: absolute; border-radius: 50%; background: #cfe3ff; box-shadow: 0 0 6px 1px rgba(160, 200, 255, 0.7); }
+.earth > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .e-vig { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 100% at 60% 50%, transparent 55%, rgba(0, 0, 8, 0.55) 100%); }
 .e-grain { position: absolute; inset: -50%; pointer-events: none; opacity: 0.09; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); animation: grain 0.9s steps(6) infinite; }
 @keyframes grain { 0% { transform: translate(0, 0); } 20% { transform: translate(-3%, 2%); } 40% { transform: translate(2%, -3%); } 60% { transform: translate(-2%, -1%); } 80% { transform: translate(3%, 3%); } 100% { transform: translate(0, 0); } }
 .e-bars i { position: absolute; left: 0; right: 0; height: 0; background: #000; transition: height 1.8s cubic-bezier(0.2, 0.7, 0.2, 1); z-index: 3; }
 .e-bars i:first-child { top: 0; } .e-bars i:last-child { bottom: 0; }
 .earthscene.on .e-bars i { height: 5.5vh; }
-.e-flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; mix-blend-mode: screen; background: radial-gradient(60% 60% at 62% 45%, rgba(255, 220, 160, 0.85), rgba(120, 170, 255, 0.25) 45%, transparent 75%); }
-.earth.moving .e-flash { animation: eflash 3.4s ease-in-out both; }
-@keyframes eflash { 0% { opacity: 0; } 34% { opacity: 0.55; } 70% { opacity: 0.12; } 100% { opacity: 0; } }
 .shoot { position: absolute; width: 140px; height: 2px; border-radius: 2px; pointer-events: none; opacity: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.95)); rotate: 28deg; animation: shoot 11s ease-in infinite; }
 @keyframes shoot { 0%, 86% { opacity: 0; translate: 0 0; } 88% { opacity: 1; } 100% { opacity: 0; translate: 380px 200px; } }
 .slide.earth-far .panel { margin-block: auto; max-width: min(46vw, 36rem); }
@@ -524,7 +514,7 @@ const SLIDES = [
   { type: 'list', country: 'mongolia', scene: 'lessonMN', photo: 'ridersmn', accent: MN, eyebrow: 'Mongolia — 05 / 05', title: 'One important thing I learned growing up', ghost: '05', items: [['', 'Respect your elders and your guests.'], ['', 'Family and community come first.'], ['', 'Be strong like the steppe: adapt to hard times.'], ['', 'Never give up. Every winter ends.']] },
 
   { type: 'gallery', scene: 'compare', accent: GOLD, eyebrow: 'Moments', title: 'Colombia &amp; Mongolia in pictures', lead: 'Seven moments from two countries. Hover the strip to pause it.' },
-  { type: 'compare', scene: 'compare', earth: 'near', accent: GOLD, eyebrow: 'Side by side', title: 'Two lands, one world', ghost: 'VS', rows: [['Terrain', 'Andes, Amazon, two coasts', 'Steppe, Gobi, Altai peaks'], ['Weather', 'Tropical, warm, two rainy seasons', '−40°C winters to +40°C Gobi summers'], ['Food', 'Arepas, bandeja paisa, coffee', 'Buuz, suutei tsai, airag'], ['Culture', 'Cumbia, vallenato, salsa', 'Throat singing, Naadam'], ['Lesson', 'Family always comes first', 'Respect elders and guests']] },
+  { type: 'compare', scene: 'compare', earth: 'near', accent: GOLD, eyebrow: 'Side by side', title: 'Two lands, one world', rows: [['Terrain', 'Andes, Amazon, two coasts', 'Steppe, Gobi, Altai peaks'], ['Weather', 'Tropical, warm, two rainy seasons', '−40°C winters to +40°C Gobi summers'], ['Food', 'Arepas, bandeja paisa, coffee', 'Buuz, suutei tsai, airag'], ['Culture', 'Cumbia, vallenato, salsa', 'Throat singing, Naadam'], ['Lesson', 'Family always comes first', 'Respect elders and guests']] },
   { type: 'title', scene: 'thanks', earth: 'far', accent: GOLD, eyebrow: 'Thank you', title: '<span>Questions?</span>', lead: 'Colombia and Mongolia look very different, but family, respect and kindness matter in both.', hint: 'Use ← to go back' }
 ];
 
@@ -536,7 +526,7 @@ const esc = s => s.replace(/&(?!amp;)/g, '&amp;');
 let earthChange = -1e9;
 const earthHTML = () => {
   const r = rng(7); let st = ''; for (let k = 0; k < 90; k++) st += `<i class="tw" style="left:${(r() * 100).toFixed(1)}%;top:${(r() * 100).toFixed(1)}%;width:${(r() * 2 + 1).toFixed(1)}px;height:${(r() * 2 + 1).toFixed(1)}px;animation-delay:${(r() * 4).toFixed(1)}s"></i>`;
-  return `<div class="earth"><div class="e-near"><canvas id="nearC"></canvas></div><div class="e-far"><canvas id="farC"></canvas></div><div class="e-stars">${st}</div><i class="shoot" style="left:58%;top:8%"></i><i class="shoot" style="left:24%;top:16%;animation-delay:-5.5s"></i><div class="e-flash"></div><div class="e-vig"></div><div class="e-grain"></div><div class="e-bars"><i></i><i></i></div></div>`;
+  return `<div class="earth"><canvas id="earthC"></canvas><div class="e-stars">${st}</div><i class="shoot" style="left:58%;top:8%"></i><i class="shoot" style="left:24%;top:16%;animation-delay:-5.5s"></i><div class="e-vig"></div><div class="e-grain"></div><div class="e-bars"><i></i><i></i></div></div>`;
 };
 const EA = { near: null, far: null, np: [], fp: [], ready: false };
 function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
@@ -557,11 +547,10 @@ Promise.all([loadImg('img/earth-near.webp'), loadImg('img/earth-far.webp')]).the
   } catch (e) { }
   EA.ready = true;
 });
-function fit(c) { const dpr = Math.min(devicePixelRatio || 1, 1.5), cw = Math.round(innerWidth * dpr), ch = Math.round(innerHeight * dpr); if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; } return [c.getContext('2d'), cw, ch]; }
 function glowPts(x, pts, sz, ox, oy, w, h, cw, ch, t, lo, hi) {
   x.globalCompositeOperation = 'lighter';
   for (const p of pts) { const dx = ox + p[0] * w, dy = oy + p[1] * h; if (dx < -20 || dx > cw + 20 || dy < -20 || dy > ch + 20) continue; x.globalAlpha = lo + hi * (0.5 + 0.5 * Math.sin(t * 0.0018 * p[3] + p[2])); x.drawImage(EP, dx - sz, dy - sz, sz * 2, sz * 2); }
-  x.globalAlpha = 1;
+  x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
 }
 function bloom(x, cx, cy, R, a, streak, cw) {
   x.globalCompositeOperation = 'lighter';
@@ -578,26 +567,53 @@ function mirrorDraw(x, img, dx, dy, w, h, cw) {
   if (dx > 0) { x.save(); x.translate(dx, 0); x.scale(-1, 1); x.drawImage(img, 0, dy, w, h); x.restore(); }
   if (dx + w < cw) { x.save(); x.translate(dx + 2 * w, 0); x.scale(-1, 1); x.drawImage(img, 0, dy, w, h); x.restore(); }
 }
-function drawNear(t) {
-  const c = $('#nearC'); if (!c || !EA.near) return; const [x, cw, ch] = fit(c), im = EA.near, iw = im.naturalWidth, ih = im.naturalHeight;
+function layerCanvas(k, cw, ch) { let c = EA[k]; if (!c) c = EA[k] = document.createElement('canvas'); if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; } return c; }
+function renderNear(x, cw, ch, t) {
+  const im = EA.near, iw = im.naturalWidth, ih = im.naturalHeight;
   const scale = Math.max(cw / iw, ch / ih) * (1.06 + 0.05 * Math.sin(t * 0.00012)), w = iw * scale, h = ih * scale;
   let dx = cw * 0.5 - (0.5 + 0.03 * Math.sin(t * 0.00008)) * w, dy = ch * 0.62 - 0.6 * h; dx = Math.min(0, Math.max(cw - w, dx)); dy = Math.min(0, Math.max(ch - h, dy));
-  x.globalCompositeOperation = 'source-over'; x.fillStyle = '#02030a'; x.fillRect(0, 0, cw, ch); x.drawImage(im, dx, dy, w, h);
+  x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.fillStyle = '#02030a'; x.fillRect(0, 0, cw, ch); x.drawImage(im, dx, dy, w, h);
   glowPts(x, EA.np, 11 * scale * (iw / 2400), dx, dy, w, h, cw, ch, t, 0.1, 0.42);
   bloom(x, dx + 0.515 * w, dy + 0.384 * h, ch * (0.3 + 0.03 * Math.sin(t * 0.0011)), 0.5 + 0.18 * Math.sin(t * 0.0017), 0.42, cw);
 }
-function drawFar(t) {
-  const c = $('#farC'); if (!c || !EA.far) return; const [x, cw, ch] = fit(c), im = EA.far, iw = im.naturalWidth, ih = im.naturalHeight, mob = cw / ch < 1.1;
+function renderFar(x, cw, ch, t) {
+  const im = EA.far, iw = im.naturalWidth, ih = im.naturalHeight, mob = cw / ch < 1.1;
   const scale = Math.max(cw / iw, ch / ih) * ((mob ? 1.0 : 1.1) + 0.035 * Math.sin(t * 0.00011)), w = iw * scale, h = ih * scale;
   const dx = cw * (mob ? 0.5 : 0.73) - 0.518 * w; let dy = ch * (mob ? 0.34 : 0.5) - 0.505 * h; dy = Math.min(0, Math.max(ch - h, dy));
-  x.globalCompositeOperation = 'source-over'; x.fillStyle = '#02030a'; x.fillRect(0, 0, cw, ch); mirrorDraw(x, im, dx, dy, w, h, cw);
+  x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.fillStyle = '#02030a'; x.fillRect(0, 0, cw, ch); mirrorDraw(x, im, dx, dy, w, h, cw);
   glowPts(x, EA.fp, 9 * scale * (iw / 2400), dx, dy, w, h, cw, ch, t, 0.1, 0.5);
   bloom(x, dx + 0.39 * w, dy + 0.205 * h, ch * (0.34 + 0.03 * Math.sin(t * 0.0013)), 0.55 + 0.2 * Math.sin(t * 0.0019), 0.5, cw);
+  EA.farAnchor = [dx + 0.518 * w, dy + 0.505 * h];
 }
+const ease = u => u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2, sstep = (a, b, v) => { const u = Math.max(0, Math.min(1, (v - a) / (b - a))); return u * u * (3 - 2 * u); };
+const WARP = (() => { const r = rng(11), a = []; for (let k = 0; k < 160; k++) a.push([r() * 6.2832, 0.12 + r() * 0.88, 0.5 + r() * 1.2, r()]); return a; })();
+EA.p = 0; EA.from = 0; EA.to = 0; EA.t0 = -1e9; const DUR = 5200;
 function earthFrame(t) {
-  if (!EA.ready) return; const st = earthEl.dataset.state, moving = t - earthChange < 3700;
-  if (st === 'near' || moving) drawNear(t);
-  if (st === 'far' || moving) drawFar(t);
+  if (!EA.ready) return; const c = $('#earthC'); if (!c) return;
+  const dpr = Math.min(devicePixelRatio || 1, 1.5), cw = Math.round(innerWidth * dpr), ch = Math.round(innerHeight * dpr); if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; }
+  const x = c.getContext('2d'), u = Math.min(1, (t - EA.t0) / DUR), p = EA.from + (EA.to - EA.from) * ease(u), moving = u < 1;
+  if (!moving && EA.to === 1) { if (EA.frameToggle ^= 1) return; }
+  const needN = p < 0.995, needF = p > 0.005;
+  if (needN) renderNear(needF || true ? layerCanvas('cn', cw, ch).getContext('2d') : x, cw, ch, t);
+  if (needN && p > 0.01) { const nx = EA.cn.getContext('2d'), mg = nx.createRadialGradient(cw * 0.5, ch * 0.55, 0, cw * 0.5, ch * 0.55, Math.hypot(cw, ch) * 0.52); mg.addColorStop(0.62, 'rgba(0,0,0,1)'); mg.addColorStop(1, 'rgba(0,0,0,0)'); nx.globalCompositeOperation = 'destination-in'; nx.fillStyle = mg; nx.fillRect(0, 0, cw, ch); nx.globalCompositeOperation = 'source-over'; }
+  if (needF) renderFar(layerCanvas('cf', cw, ch).getContext('2d'), cw, ch, t);
+  x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.fillStyle = '#02030a'; x.fillRect(0, 0, cw, ch);
+  const m = Math.sin(Math.PI * p), mv = moving ? Math.sin(Math.PI * Math.max(0, Math.min(1, (p - 0) ))) : 0;
+  const e = p; // already eased
+  if (needN) { // near: pulls away, shrinking toward its horizon
+    const s = 1 - 0.58 * e, al = 1 - sstep(0.22, 0.78, p), ax = cw * 0.5, ay = ch * 0.62;
+    for (const k of m > 0.05 ? [-1, 0, 1] : [0]) { x.save(); x.globalAlpha = al * (k ? 0.28 : 1); const ss = s * (1 + k * 0.035 * m); x.translate(ax, ay); x.scale(ss, ss); x.translate(-ax, -ay); x.drawImage(EA.cn, 0, 0); x.restore(); }
+  }
+  if (needF) { // far: the whole globe rushes out of the dark to rest
+    const fa = EA.farAnchor || [cw * 0.73, ch * 0.5], s = 3.3 - 2.3 * e, al = sstep(0.3, 0.92, p);
+    for (const k of m > 0.05 ? [-1, 0, 1] : [0]) { x.save(); x.globalAlpha = al * (k ? 0.28 : 1); const ss = s * (1 + k * 0.03 * m); x.translate(fa[0], fa[1]); x.scale(ss, ss); x.translate(-fa[0], -fa[1]); x.drawImage(EA.cf, 0, 0); x.restore(); }
+  }
+  if (moving && m > 0.02) { // warp streaks flowing in toward the camera path + sun bloom surge
+    x.globalCompositeOperation = 'lighter'; const cx0 = cw * 0.55, cy0 = ch * 0.48, R = Math.hypot(cw, ch) * 0.62;
+    for (const w of WARP) { const ph = ((t * 0.0006 * w[2] + w[3]) % 1), r = (1 - ph) * R * w[1] + 12, len = (18 + 120 * m * w[2]) * dpr * (1 - ph * 0.5); x.strokeStyle = `rgba(190,215,255,${0.5 * m * (0.3 + 0.7 * (1 - ph))})`; x.lineWidth = (0.7 + w[2] * 0.7) * dpr; x.beginPath(); x.moveTo(cx0 + Math.cos(w[0]) * r, cy0 + Math.sin(w[0]) * r); x.lineTo(cx0 + Math.cos(w[0]) * (r + len), cy0 + Math.sin(w[0]) * (r + len)); x.stroke(); }
+    const g = x.createRadialGradient(cw * 0.52, ch * 0.42, 0, cw * 0.52, ch * 0.42, ch * 0.9); g.addColorStop(0, `rgba(255,225,170,${0.5 * m * m})`); g.addColorStop(0.4, `rgba(120,170,255,${0.14 * m * m})`); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, cw, ch);
+    x.globalCompositeOperation = 'source-over';
+  }
 }
 
 
@@ -646,7 +662,7 @@ function go(n) {
   n = Math.max(0, Math.min(SLIDES.length - 1, n)); if (n === cur) return;
   cur = n; const s = SLIDES[n];
   slides.forEach((el, i) => { el.classList.toggle('active', i === n); el.classList.toggle('past', i < n); if (i === n) el.scrollTop = 0; });
-  scenes.forEach(el => el.classList.toggle('on', el === scenes[n])); if (s.earth) { if (earthEl.dataset.state !== s.earth) { earthChange = performance.now(); const ee = earthEl.firstElementChild; ee.classList.remove('moving'); void ee.offsetWidth; ee.classList.add('moving'); clearTimeout(ee._t); ee._t = setTimeout(() => ee.classList.remove('moving'), 3700); } earthEl.dataset.state = s.earth; }
+  scenes.forEach(el => el.classList.toggle('on', el === scenes[n])); if (s.earth) { if (earthEl.dataset.state !== s.earth) { const now = performance.now(), u = Math.min(1, (now - EA.t0) / DUR); EA.p = EA.from + (EA.to - EA.from) * ease(u); EA.from = EA.p; EA.to = s.earth === 'far' ? 1 : 0; EA.t0 = now; } earthEl.dataset.state = s.earth; }
   dots.forEach((d, i) => d.setAttribute('aria-current', i === n ? 'true' : 'false'));
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.country === s.country)));
   app.style.setProperty('--accent', s.accent); accentRGB = hex2rgb(s.accent); app.classList.toggle('is-hero', !!s.hero); app.classList.toggle('is-earth', !!s.earth); app.classList.toggle('is-clear', !!s.clear);
