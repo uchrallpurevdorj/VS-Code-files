@@ -282,6 +282,27 @@ h1 .c1 { color: #fcd116; } h1 .c2 { color: #7cc4ff; }
 @media (max-width: 720px) { .hchip { bottom: 12vh; font-size: 0.62rem; padding: 0.55rem 0.7rem; } .panel.center { max-width: 22rem; } }
 .shot.still .chip, .shot.still .chip2 { background: rgba(8, 12, 30, 0.62); }
 .shot.still .chip2 { top: auto; bottom: -1rem; right: -1.2rem; }
+
+/* ===== v4: earth ===== */
+#app.is-earth .grade { opacity: 0.2; }
+.scene.earthscene { background: #02030a; }
+.earth { position: absolute; inset: 0; overflow: hidden; }
+.e-stars { position: absolute; inset: 0; transform: scale(1); transition: transform 3.2s cubic-bezier(0.55, 0, 0.2, 1); }
+.earthscene[data-state='near'] .e-stars { transform: scale(1.5); }
+.e-stars i { position: absolute; border-radius: 50%; background: #fff; }
+.e-near { position: absolute; inset: 0; transform-origin: 50% 60%; -webkit-mask-image: radial-gradient(130% 110% at 50% 55%, #000 62%, transparent 90%); mask-image: radial-gradient(130% 110% at 50% 55%, #000 62%, transparent 90%); transition: transform 3.2s cubic-bezier(0.55, 0, 0.2, 1), opacity 1.6s ease 0.1s; }
+.e-near canvas { display: block; width: 100%; height: 100%; }
+.earthscene[data-state='far'] .e-near { transform: scale(0.5); opacity: 0; }
+.e-far { position: absolute; inset: 0; transform-origin: 70% 50%; transform: scale(3.8); opacity: 0; transition: transform 2.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.1s ease; }
+.earthscene[data-state='far'] .e-far { transform: scale(1); opacity: 1; transition: transform 3.2s cubic-bezier(0.55, 0, 0.2, 1), opacity 1.8s ease 0.7s; }
+.globe { --gs: min(80vh, 52vw); position: absolute; right: clamp(16px, 6vw, 120px); top: 50%; width: var(--gs); height: var(--gs); margin-top: calc(var(--gs) / -2); transform: translate3d(calc(var(--mx) * -20px), calc(var(--my) * -12px), 0); }
+.globe canvas { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.atmo { position: absolute; inset: -1%; border-radius: 50%; pointer-events: none; box-shadow: 0 0 70px 12px rgba(80, 150, 255, 0.38), inset 0 0 50px 4px rgba(120, 185, 255, 0.4); animation: atmo 6s ease-in-out infinite alternate; }
+@keyframes atmo { from { opacity: 0.65; } to { opacity: 1; } }
+.sunflare { position: absolute; left: -12%; top: -14%; width: 70%; height: 80%; pointer-events: none; mix-blend-mode: screen; background: radial-gradient(circle at 34% 30%, rgba(255, 190, 90, 0.9) 0, rgba(255, 140, 40, 0.38) 8%, rgba(255, 110, 20, 0.14) 28%, transparent 62%); animation: flare 7s ease-in-out infinite alternate; }
+@keyframes flare { from { opacity: 0.6; scale: 0.96; } to { opacity: 1; scale: 1.06; } }
+.slide.earth-far .panel { margin-block: auto; }
+@media (max-width: 900px) { .globe { --gs: 84vw; right: 8vw; top: 30%; } .slide.earth-far .panel { margin-top: auto; margin-bottom: 0; } }
 </style>
 </head>
 <body>
@@ -457,30 +478,105 @@ const SLIDES = [
   { type: 'hero', hero: 1, accent: GOLD, eyebrow: 'Country Information', title: '<span class="c1">Colombia</span><span class="of">&amp;</span><span class="c2">Mongolia</span>', lead: 'Two countries on opposite sides of the world: their land, weather, people, food and traditions.', hint: 'Press \u2192 or use the arrows to begin' },
 
   { type: 'cols', country: 'colombia', scene: 'flagCO', photo: 'bogota', accent: CO, eyebrow: 'Colombia', title: 'Welcome to Colombia', ghost: 'CO', cols: [['Capital city', 'Bogotá', 'High in the Andes mountains'], ['Language', 'Spanish', 'Spoken across the whole country'], ['Currency', 'Colombian peso', 'Used for all everyday payments'], ['Coasts', 'Two seas', 'Caribbean and Pacific']] },
-  { type: 'list', country: 'colombia', scene: 'geoCO', map: 'mapco', accent: CO, eyebrow: 'Colombia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
-  { type: 'list', country: 'colombia', scene: 'weatherCO', photo: 'misty', accent: CO, eyebrow: 'Colombia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['', 'Tropical climate.'], ['', 'Warm weather in many regions.'], ['', 'Two rainy seasons in some areas.']] },
-  { type: 'list', country: 'colombia', scene: 'socialCO', accent: CO, eyebrow: 'Colombia — 03 / 06', title: 'Any social problems?', ghost: '03', items: [['', 'Poverty and inequality.'], ['', 'Violence in some areas.'], ['', 'Unemployment.']] },
-  { type: 'list', country: 'colombia', scene: 'foodCO', photo: 'restaurant', accent: CO, eyebrow: 'Colombia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['', 'Arepas and empanadas.'], ['', 'Bandeja paisa.'], ['', 'Coffee is very popular.']] },
-  { type: 'list', country: 'colombia', scene: 'cultureCO', photo: 'palenqueras', accent: CO, eyebrow: 'Colombia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['', 'Family is very important.'], ['', 'People are friendly and welcoming.'], ['', 'Music and dancing are popular.'], ['', 'Cumbia, vallenato, and salsa.']] },
-  { type: 'list', country: 'colombia', scene: 'lessonCO', photo: 'fansco', accent: CO, eyebrow: 'Colombia — 06 / 06', title: 'One important thing I learned growing up', ghost: '06', items: [['', 'Respect other people.'], ['', 'Family always comes first.'], ['', 'Be kind and help others.'], ['', 'Never give up.']] },
+  { type: 'list', country: 'colombia', scene: 'geoCO', map: 'mapco', accent: CO, eyebrow: 'Colombia — 01 / 05', title: 'Geography (Terrain)', ghost: '01', items: [['', 'Three mountain ranges (Andes).'], ['', 'Caribbean and Pacific beaches.'], ['', 'Amazon rainforest.'], ['', 'Valleys and plains.']] },
+  { type: 'list', country: 'colombia', scene: 'weatherCO', photo: 'misty', accent: CO, eyebrow: 'Colombia — 02 / 05', title: 'What is the weather like?', ghost: '02', items: [['', 'Tropical climate.'], ['', 'Warm weather in many regions.'], ['', 'Two rainy seasons in some areas.']] },
+  { type: 'list', country: 'colombia', scene: 'foodCO', photo: 'restaurant', accent: CO, eyebrow: 'Colombia — 03 / 05', title: 'Tell me about the food', ghost: '03', items: [['', 'Arepas and empanadas.'], ['', 'Bandeja paisa.'], ['', 'Coffee is very popular.']] },
+  { type: 'list', country: 'colombia', scene: 'cultureCO', photo: 'palenqueras', accent: CO, eyebrow: 'Colombia — 04 / 05', title: 'Tell me about the culture', ghost: '04', items: [['', 'Family is very important.'], ['', 'People are friendly and welcoming.'], ['', 'Music and dancing are popular.'], ['', 'Cumbia, vallenato, and salsa.']] },
+  { type: 'list', country: 'colombia', scene: 'lessonCO', photo: 'fansco', accent: CO, eyebrow: 'Colombia — 05 / 05', title: 'One important thing I learned growing up', ghost: '05', items: [['', 'Respect other people.'], ['', 'Family always comes first.'], ['', 'Be kind and help others.'], ['', 'Never give up.']] },
 
   { type: 'cols', country: 'mongolia', scene: 'flagMN', photo: 'ulaanbaatar', accent: MN, eyebrow: 'Mongolia', title: 'Welcome to Mongolia', ghost: 'MN', cols: [['Capital city', 'Ulaanbaatar', 'Home to about half of the \u2248 3.5 million people'], ['Language', 'Mongolian', 'Written in Cyrillic today'], ['Currency', 'T\u00f6gr\u00f6g', 'Mongolian national money'], ['Neighbours', 'Russia & China', 'Landlocked, 1.56 million km\u00b2']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'geoMN', map: 'mapmn', accent: MN, eyebrow: 'Mongolia — 01 / 06', title: 'Geography (Terrain)', ghost: '01', items: [['Landlocked.', 'Russia is to the north and China to the south, east and west.'], ['Huge and empty.', '19th largest country in the world, but very few people.'], ['Altai Mountains.', 'West: snowy peaks, the highest point is 4,374 m.'], ['Gobi Desert.', 'South: about one third of the country, dunes and rocky plains.'], ['Steppe.', 'Endless grassland in the centre and east.'], ['Lakes and forest.', 'North: Lake Khövsgöl and taiga forest.']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'weatherMN', photo: 'sleigh', accent: MN, eyebrow: 'Mongolia — 02 / 06', title: 'What is the weather like?', ghost: '02', items: [['Extreme climate.', 'Very long cold winters and short warm summers.'], ['Winter.', 'January averages about −20°C and nights can fall below −40°C.'], ['Summer.', 'June to August is pleasant; the Gobi can reach +40°C.'], ['Land of the Eternal Blue Sky.', 'More than 260 sunny days every year.'], ['Dzud.', 'A deadly winter after a dry summer: snow covers the grass and animals starve.'], ['Dry.', 'Little rain, and most of it falls in summer.']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'socialMN', accent: MN, eyebrow: 'Mongolia — 03 / 06', title: 'Any social problems?', ghost: '03', items: [['Air pollution.', 'In winter, coal smoke from ger districts makes Ulaanbaatar one of the most polluted capitals.'], ['Poverty and inequality.', 'Many families in the ger districts live on low income.'], ['Unemployment.', 'Not enough stable jobs; the economy depends heavily on mining.'], ['Climate pressure.', 'After dzud, herders lose animals and move to the edge of the capital.'], ['Crowded capital.', 'About half of the country lives in one city.']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'foodMN', photo: 'mnrestaurant', accent: MN, eyebrow: 'Mongolia — 04 / 06', title: 'Tell me about the food', ghost: '04', items: [['Buuz.', 'Steamed mutton dumplings; the star of Tsagaan Sar, the Lunar New Year.'], ['Khuushuur.', 'Large fried meat pancakes, a Naadam favourite.'], ['Suutei tsai.', 'Salty milk tea, drunk many times a day and offered to every guest.'], ['Airag.', 'Fermented mare’s milk, the classic summer drink.'], ['Aaruul and boortsog.', 'Dried milk curds and fried biscuits, perfect with tea.'], ['Why so much meat and milk?', 'Long winters and nomadic life.']] },
-  { type: 'list', dense: 1, country: 'mongolia', scene: 'cultureMN', photo: 'gerinside', accent: MN, eyebrow: 'Mongolia — 05 / 06', title: 'Tell me about the culture', ghost: '05', items: [['Nomadic life.', 'About a quarter of people still live as herders in a ger (a round felt home).'], ['Naadam.', 'July 11–13: wrestling, horse racing and archery.'], ['Music.', 'Morin khuur (horse-head fiddle), throat singing (khoomei) and long songs.'], ['Hospitality.', 'Guests are always welcome and traditionally the ger door stays unlocked.'], ['Beliefs.', 'Tibetan Buddhism and old shamanist traditions.'], ['History.', 'Home of Chinggis Khaan, founder of the Mongol Empire.']] },
-  { type: 'list', country: 'mongolia', scene: 'lessonMN', photo: 'ridersmn', accent: MN, eyebrow: 'Mongolia — 06 / 06', title: 'One important thing I learned growing up', ghost: '06', items: [['', 'Respect your elders and your guests.'], ['', 'Family and community come first.'], ['', 'Be strong like the steppe: adapt to hard times.'], ['', 'Never give up. Every winter ends.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'geoMN', map: 'mapmn', accent: MN, eyebrow: 'Mongolia — 01 / 05', title: 'Geography (Terrain)', ghost: '01', items: [['Landlocked.', 'Russia is to the north and China to the south, east and west.'], ['Huge and empty.', '19th largest country in the world, but very few people.'], ['Altai Mountains.', 'West: snowy peaks, the highest point is 4,374 m.'], ['Gobi Desert.', 'South: about one third of the country, dunes and rocky plains.'], ['Steppe.', 'Endless grassland in the centre and east.'], ['Lakes and forest.', 'North: Lake Khövsgöl and taiga forest.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'weatherMN', photo: 'sleigh', accent: MN, eyebrow: 'Mongolia — 02 / 05', title: 'What is the weather like?', ghost: '02', items: [['Extreme climate.', 'Very long cold winters and short warm summers.'], ['Winter.', 'January averages about −20°C and nights can fall below −40°C.'], ['Summer.', 'June to August is pleasant; the Gobi can reach +40°C.'], ['Land of the Eternal Blue Sky.', 'More than 260 sunny days every year.'], ['Dzud.', 'A deadly winter after a dry summer: snow covers the grass and animals starve.'], ['Dry.', 'Little rain, and most of it falls in summer.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'foodMN', photo: 'mnrestaurant', accent: MN, eyebrow: 'Mongolia — 03 / 05', title: 'Tell me about the food', ghost: '03', items: [['Buuz.', 'Steamed mutton dumplings; the star of Tsagaan Sar, the Lunar New Year.'], ['Khuushuur.', 'Large fried meat pancakes, a Naadam favourite.'], ['Suutei tsai.', 'Salty milk tea, drunk many times a day and offered to every guest.'], ['Airag.', 'Fermented mare’s milk, the classic summer drink.'], ['Aaruul and boortsog.', 'Dried milk curds and fried biscuits, perfect with tea.'], ['Why so much meat and milk?', 'Long winters and nomadic life.']] },
+  { type: 'list', dense: 1, country: 'mongolia', scene: 'cultureMN', photo: 'gerinside', accent: MN, eyebrow: 'Mongolia — 04 / 05', title: 'Tell me about the culture', ghost: '04', items: [['Nomadic life.', 'About a quarter of people still live as herders in a ger (a round felt home).'], ['Naadam.', 'July 11–13: wrestling, horse racing and archery.'], ['Music.', 'Morin khuur (horse-head fiddle), throat singing (khoomei) and long songs.'], ['Hospitality.', 'Guests are always welcome and traditionally the ger door stays unlocked.'], ['Beliefs.', 'Tibetan Buddhism and old shamanist traditions.'], ['History.', 'Home of Chinggis Khaan, founder of the Mongol Empire.']] },
+  { type: 'list', country: 'mongolia', scene: 'lessonMN', photo: 'ridersmn', accent: MN, eyebrow: 'Mongolia — 05 / 05', title: 'One important thing I learned growing up', ghost: '05', items: [['', 'Respect your elders and your guests.'], ['', 'Family and community come first.'], ['', 'Be strong like the steppe: adapt to hard times.'], ['', 'Never give up. Every winter ends.']] },
 
   { type: 'gallery', scene: 'compare', accent: GOLD, eyebrow: 'Moments', title: 'Colombia &amp; Mongolia in pictures', lead: 'Seven moments from two countries. Hover the strip to pause it.' },
-  { type: 'compare', scene: 'compare', accent: GOLD, eyebrow: 'Side by side', title: 'Two lands, one world', ghost: 'VS', rows: [['Terrain', 'Andes, Amazon, two coasts', 'Steppe, Gobi, Altai peaks'], ['Weather', 'Tropical, warm, two rainy seasons', '−40°C winters to +40°C Gobi summers'], ['Food', 'Arepas, bandeja paisa, coffee', 'Buuz, suutei tsai, airag'], ['Culture', 'Cumbia, vallenato, salsa', 'Throat singing, Naadam'], ['Lesson', 'Family always comes first', 'Respect elders and guests']] },
-  { type: 'title', scene: 'thanks', accent: GOLD, eyebrow: 'Thank you', title: '<span>Questions?</span>', lead: 'Colombia and Mongolia look very different, but family, respect and kindness matter in both.', hint: 'Use ← to go back' }
+  { type: 'compare', scene: 'compare', earth: 'near', accent: GOLD, eyebrow: 'Side by side', title: 'Two lands, one world', ghost: 'VS', rows: [['Terrain', 'Andes, Amazon, two coasts', 'Steppe, Gobi, Altai peaks'], ['Weather', 'Tropical, warm, two rainy seasons', '−40°C winters to +40°C Gobi summers'], ['Food', 'Arepas, bandeja paisa, coffee', 'Buuz, suutei tsai, airag'], ['Culture', 'Cumbia, vallenato, salsa', 'Throat singing, Naadam'], ['Lesson', 'Family always comes first', 'Respect elders and guests']] },
+  { type: 'title', scene: 'thanks', earth: 'far', accent: GOLD, eyebrow: 'Thank you', title: '<span>Questions?</span>', lead: 'Colombia and Mongolia look very different, but family, respect and kindness matter in both.', hint: 'Use ← to go back' }
 ];
 
 /* ================= build ================= */
 const $ = s => document.querySelector(s);
 const app = $('#app'), world = $('#world'), deck = $('#deck'), dotsEl = $('#dots');
 const esc = s => s.replace(/&(?!amp;)/g, '&amp;');
+/* ================= Earth: close-up view and zoom-out to the whole globe ================= */
+let earthChange = -1e9;
+const earthHTML = () => {
+  const r = rng(7); let st = ''; for (let k = 0; k < 150; k++) st += `<i class="tw" style="left:${(r() * 100).toFixed(1)}%;top:${(r() * 100).toFixed(1)}%;width:${(r() * 2 + 1).toFixed(1)}px;height:${(r() * 2 + 1).toFixed(1)}px;animation-delay:${(r() * 4).toFixed(1)}s"></i>`;
+  return `<div class="earth"><div class="e-stars">${st}</div><div class="e-near"><canvas id="nearC"></canvas></div><div class="e-far"><div class="sunflare"></div><div class="globe"><canvas id="globeC" width="560" height="560"></canvas><i class="atmo"></i></div></div></div>`;
+};
+const EA = { near: null, nearPts: [], tex: null, lig: null, ready: false, N: 560 };
+function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+function sprite() { const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'), g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, 'rgba(255,230,160,1)'); g.addColorStop(0.35, 'rgba(255,180,70,.55)'); g.addColorStop(1, 'rgba(255,150,40,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c; }
+const EP = sprite();
+function pixels(img) { const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0); return x.getImageData(0, 0, c.width, c.height); }
+Promise.all([loadImg('img/earth-near.webp'), loadImg('img/earth-tex.webp'), loadImg('img/earth-lights.png'), loadImg('img/earth-far.webp')]).then(([near, tex, lig, far]) => {
+  EA.near = near; EA.far = far;
+  try {
+    const d = pixels(near), pr = rng(3); const pts = [];
+    for (let y = 0; y < d.height; y += 2) for (let x = 0; x < d.width; x += 2) { const i = (y * d.width + x) * 4, R = d.data[i], G = d.data[i + 1], B = d.data[i + 2]; if (R > 200 && G > 140 && B < 200 && pr() < 0.9) pts.push([x, y, pr() * 6.28, 0.6 + pr() * 1.6]); }
+    while (pts.length > 7000) pts.splice((pr() * pts.length) | 0, 1);
+    EA.nearPts = pts;
+    const t = pixels(tex), l = pixels(lig), TW = t.width, TH = t.height, M = TW * TH, N = EA.N;
+    EA.TW = TW; EA.TH = TH;
+    EA.tex = new Uint32Array(M); EA.lig = new Uint8Array(M); EA.ph = new Float32Array(M);
+    for (let i = 0; i < M; i++) { EA.tex[i] = (t.data[i * 4]) | (t.data[i * 4 + 1] << 8) | (t.data[i * 4 + 2] << 16); EA.lig[i] = l.data[i * 4]; EA.ph[i] = pr() * 6.28; }
+    const P = N * N; EA.lon0 = new Float32Array(P); EA.ty = new Int16Array(P); EA.L = new Float32Array(P); EA.rim = new Float32Array(P); EA.inside = new Uint8Array(P); EA.night = new Float32Array(P);
+    const sun = [-0.62, 0.5, 0.6], sl = Math.hypot(...sun); sun[0] /= sl; sun[1] /= sl; sun[2] /= sl;
+    for (let yy = 0; yy < N; yy++) for (let xx = 0; xx < N; xx++) {
+      const i = yy * N + xx, px = (xx + 0.5) / N * 2 - 1, py = -((yy + 0.5) / N * 2 - 1), r2 = px * px + py * py;
+      if (r2 >= 1) continue; EA.inside[i] = 1;
+      const nz = Math.sqrt(1 - r2), lat = Math.asin(py), cl = Math.max(Math.cos(lat), 1e-3);
+      EA.lon0[i] = Math.asin(Math.max(-1, Math.min(1, px / cl))); EA.ty[i] = Math.max(0, Math.min(TH - 1, ((0.5 - lat / Math.PI) * (TH - 1)) | 0));
+      const L = Math.max(0.28, Math.min(1.2, 0.28 + 0.95 * Math.max(px * sun[0] + py * sun[1] + nz * sun[2], 0)));
+      EA.L[i] = L; EA.rim[i] = Math.pow(1 - nz, 3) * Math.max(0.2, Math.min(1, L * 1.4)); EA.night[i] = Math.max(0, Math.min(1, 1.2 - L * 1.6));
+    }
+    EA.out = new ImageData(N, N); EA.out32 = new Uint32Array(EA.out.data.buffer); EA.ready = true;
+  } catch (e) { EA.fallback = true; }
+});
+const LON = 70 * Math.PI / 180, PERIOD = 280 * Math.PI / 180;
+function drawNear(t) {
+  const c = $('#nearC'); if (!c || !EA.near) return;
+  const dpr = Math.min(devicePixelRatio || 1, 1.5), cw = Math.round(innerWidth * dpr), ch = Math.round(innerHeight * dpr);
+  if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; }
+  const x = c.getContext('2d'), iw = EA.near.naturalWidth, ih = EA.near.naturalHeight;
+  const zoom = 1.04 + 0.04 * Math.sin(t * 0.00012), scale = Math.max(cw / iw, ch / ih) * zoom;
+  const sw = cw / scale, sh = ch / scale, sx = (iw - sw) * (0.5 + 0.18 * Math.sin(t * 0.00009)), sy = (ih - sh) * (0.56 - 0.05 * Math.sin(t * 0.00007));
+  x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.fillStyle = '#02030a'; x.fillRect(0, 0, cw, ch); x.drawImage(EA.near, sx, sy, sw, sh, 0, 0, cw, ch);
+  x.globalCompositeOperation = 'lighter';
+  const sz = 11 * scale;
+  for (const p of EA.nearPts) {
+    const dx = (p[0] - sx) * scale, dy = (p[1] - sy) * scale; if (dx < -20 || dx > cw + 20 || dy < -20 || dy > ch + 20) continue;
+    x.globalAlpha = 0.12 + 0.4 * (0.5 + 0.5 * Math.sin(t * 0.0018 * p[3] + p[2]));
+    x.drawImage(EP, dx - sz, dy - sz, sz * 2, sz * 2);
+  }
+  x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+}
+let gToggle = 0;
+function drawGlobe(t) {
+  const c = $('#globeC'); if (!c) return; const x = c.getContext('2d');
+  if (!EA.ready) { if (EA.fallback && EA.far) { x.drawImage(EA.far, 201, 45, 330, 330, 0, 0, 560, 560); } return; }
+  if ((gToggle ^= 1) && t - earthChange > 3600) return; // 30 fps once settled
+  const N = EA.N, o = EA.out32, TW = EA.TW, tex = EA.tex, lig = EA.lig, ph = EA.ph, theta = 0.6 * Math.sin(t * 0.00009), k = 280 / 360, tt = t * 0.0032;
+  for (let i = 0; i < N * N; i++) {
+    if (!EA.inside[i]) { o[i] = 0; continue; }
+    let s = (EA.lon0[i] + theta) * k, u = (s + LON) % PERIOD; if (u < 0) u += PERIOD; if (u > 2 * LON) u = PERIOD - u;
+    const tx = ((u / LON) / 2 * (TW - 1)) | 0, ti = EA.ty[i] * TW + tx, col = tex[ti], L = EA.L[i];
+    let r = (col & 255) * L, g = ((col >> 8) & 255) * L, b = ((col >> 16) & 255) * L;
+    const lv = lig[ti]; if (lv) { const f = lv / 255 * EA.night[i] * (0.55 + 0.45 * Math.sin(tt + ph[ti])) * 1.15; r += 255 * f; g += 190 * f; b += 90 * f; }
+    const rm = EA.rim[i]; r += 40 * rm; g += 90 * rm; b += 200 * rm;
+    o[i] = (r > 255 ? 255 : r) | ((g > 255 ? 255 : g) << 8) | ((b > 255 ? 255 : b) << 16) | 0xFF000000;
+  }
+  x.putImageData(EA.out, 0, 0);
+}
+function earthFrame(t) {
+  const st = earthEl.dataset.state, moving = t - earthChange < 3600;
+  if (st === 'near' || moving) drawNear(t);
+  if (st === 'far' || moving) drawGlobe(t);
+}
+
+
 const words = t => t.split(' ').map((w, i) => `<span class="w" style="--i:${i}">${w}</span>`).join(' ');
 function panelHTML(s) {
   const head = `<p class="eyebrow">${s.eyebrow}</p>`;
@@ -499,11 +595,16 @@ function galleryHTML() {
   const row = order.map(k => { const p = PHOTOS[k]; return `<div class="rc" style="--ar:${p.ar}"><img src="img/${k}.webp" alt="${p.cap}" decoding="async"><span class="rb ${p.c}">${p.c === 'co' ? 'Colombia' : 'Mongolia'}</span><span class="rcap">${p.cap}</span></div>`; }).join('');
   return `<div class="reel"><div class="track">${row}${row}</div></div>`;
 }
-const scenes = [], slides = [], dots = [];
+const scenes = [], slides = [], dots = []; let earthEl = null;
 SLIDES.forEach((s, i) => {
-  const sc = document.createElement('div'); sc.className = 'scene' + (s.photo ? ' photo' : '') + (s.hero ? ' hero' : '');
-  sc.innerHTML = s.hero ? heroScene() : s.photo ? photoScene(s.photo) : SCENES[s.scene]().join(''); world.appendChild(sc); scenes.push(sc);
-  const sl = document.createElement('section'); sl.className = 'slide' + (s.photo || s.map ? ' has-shot' : '') + (s.hero ? ' hero' : '') + (s.type === 'gallery' ? ' gal' : '');
+  let sc;
+  if (s.earth && earthEl) sc = earthEl;
+  else {
+    sc = document.createElement('div'); sc.className = 'scene' + (s.photo ? ' photo' : '') + (s.hero ? ' hero' : '') + (s.earth ? ' earthscene' : '');
+    sc.innerHTML = s.earth ? earthHTML() : s.hero ? heroScene() : s.photo ? photoScene(s.photo) : SCENES[s.scene]().join(''); world.appendChild(sc); if (s.earth) earthEl = sc;
+  }
+  scenes.push(sc);
+  const sl = document.createElement('section'); sl.className = 'slide' + (s.earth ? ' earth-' + s.earth : '') + (s.photo || s.map ? ' has-shot' : '') + (s.hero ? ' hero' : '') + (s.type === 'gallery' ? ' gal' : '');
   sl.setAttribute('aria-label', s.title.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').trim());
   sl.innerHTML = (s.ghost ? `<p class="ghost" aria-hidden="true">${s.ghost}</p>` : '') + panelHTML(s) + (s.photo || s.map ? shotHTML(s.photo || s.map) : '') + (s.type === 'gallery' ? galleryHTML() : '');
   deck.appendChild(sl); slides.push(sl);
@@ -512,6 +613,7 @@ SLIDES.forEach((s, i) => {
 const firstOf = c => SLIDES.findIndex(s => s.country === c);
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => go(firstOf(b.dataset.country)));
 
+
 /* ================= navigation ================= */
 let cur = -1, accentRGB = [242, 184, 75];
 const hex2rgb = h => [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
@@ -519,10 +621,10 @@ function go(n) {
   n = Math.max(0, Math.min(SLIDES.length - 1, n)); if (n === cur) return;
   cur = n; const s = SLIDES[n];
   slides.forEach((el, i) => { el.classList.toggle('active', i === n); el.classList.toggle('past', i < n); if (i === n) el.scrollTop = 0; });
-  scenes.forEach((el, i) => el.classList.toggle('on', i === n));
+  scenes.forEach(el => el.classList.toggle('on', el === scenes[n])); if (s.earth) { if (earthEl.dataset.state !== s.earth) earthChange = performance.now(); earthEl.dataset.state = s.earth; }
   dots.forEach((d, i) => d.setAttribute('aria-current', i === n ? 'true' : 'false'));
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-current', String(b.dataset.country === s.country)));
-  app.style.setProperty('--accent', s.accent); accentRGB = hex2rgb(s.accent); app.classList.toggle('is-hero', !!s.hero);
+  app.style.setProperty('--accent', s.accent); accentRGB = hex2rgb(s.accent); app.classList.toggle('is-hero', !!s.hero); app.classList.toggle('is-earth', !!s.earth);
   $('#prev').disabled = n === 0; $('#next').disabled = n === SLIDES.length - 1;
   try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) { }
 }
@@ -565,6 +667,7 @@ function frame(t) {
     p.y -= p.v; p.x += p.h * .3; if (p.y < -10) { p.y = innerHeight + 10; p.x = Math.random() * innerWidth; } if (p.x < -10) p.x = innerWidth + 10; if (p.x > innerWidth + 10) p.x = -10;
     cx.beginPath(); cx.arc(p.x + mx * p.d * -26, p.y + my * p.d * -14, p.r, 0, 6.2832); cx.fillStyle = `rgba(${accentRGB[0]},${accentRGB[1]},${accentRGB[2]},${p.a})`; cx.fill();
   }
+  if (earthEl && earthEl.classList.contains('on')) earthFrame(t);
   requestAnimationFrame(frame);
 }
 if (!reduce) requestAnimationFrame(frame); else glow.style.display = 'none';
