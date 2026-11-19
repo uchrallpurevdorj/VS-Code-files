@@ -29,12 +29,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // Tries every server, several rounds, with a pause between rounds (public servers are often busy).
 async function overpass(body) {
   let err;
-  for (let round = 1; round <= 4; round++) {
+  for (let round = 1; round <= 2; round++) {
     for (const u of SERVERS) {
       try { const r = await post(u, body, 45000); console.log('    ok:', new URL(u).hostname); return r; }
       catch (e) { err = e; console.log('    ' + new URL(u).hostname + ' failed:', e.message.split('\n')[0].slice(0, 60)); }
     }
-    if (round < 4) { console.log(`    all busy, waiting 15s (round ${round}/4)...`); await sleep(15000); }
+    if (round < 2) { console.log(`    all busy, waiting 15s (round ${round}/2)...`); await sleep(15000); }
   }
   throw err;
 }
@@ -56,11 +56,28 @@ async function cached(key, fn) {
   return r;
 }
 
+function split(t) {
+  const [s, w, n, e] = t.split(',').map(Number), ms = (s + n) / 2, mw = (w + e) / 2, f = x => +x.toFixed(5);
+  return [[s, w, ms, mw], [s, mw, ms, e], [ms, w, n, mw], [ms, mw, n, e]].map(a => a.map(f).join(','));
+}
+
+// Fetch one tile; if every server fails, split it into 4 smaller tiles (up to 2 levels) and retry.
+async function fetchTile(label, t, make, depth = 0) {
+  try { return await cached(`${label}-${t}`, () => overpass(q(make(t)))); }
+  catch (err) {
+    if (depth >= 2) throw err;
+    console.log(`    splitting tile into 4 (level ${depth + 1})...`);
+    const els = new Map();
+    for (const sub of split(t)) { const r = await fetchTile(label, sub, make, depth + 1); for (const el of r.elements) els.set(el.type + el.id, el); }
+    return { elements: [...els.values()] };
+  }
+}
+
 async function collect(label, n, make) {
   const seen = new Map(); let k = 0;
   for (const t of tiles(n)) {
     k++; console.log(`  ${label} ${k}/${n * n}`);
-    const r = await cached(`${label}-${n}-${t}`, () => overpass(q(make(t))));
+    const r = await fetchTile(label, t, make);
     for (const el of r.elements) seen.set(el.type + el.id, el);
   }
   return { elements: [...seen.values()] };
