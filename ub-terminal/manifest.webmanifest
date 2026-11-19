@@ -1,0 +1,17 @@
+{
+  "name": "UB Terminal",
+  "short_name": "UB Terminal",
+  "description": "Улаанбаатарын нийтийн тээвэр: буудал, чиглэл, газрын зураг.",
+  "lang": "mn",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B7A8A",
+  "theme_color": "#0B7A8A",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
