@@ -44,7 +44,8 @@ async function post(query, variables, token, attempt = 0) {
   let json = null;
   try { json = await res.json(); } catch { /* not json */ }
   if (!res.ok || !json || json.errors) {
-    const kind = res.status === 429 ? 'rate' : res.status === 404 ? 'notfound' : res.status >= 500 ? 'server' : 'api';
+    const authErr = res.status === 401 || /invalid token|unauthori[sz]ed/i.test(json?.errors?.[0]?.message || '');
+    const kind = authErr ? 'auth' : res.status === 429 ? 'rate' : res.status === 404 ? 'notfound' : res.status >= 500 ? 'server' : 'api';
     throw new ApiError(kind, json?.errors?.[0]?.message);
   }
   return json.data;
@@ -152,5 +153,25 @@ export async function detail(id) {
 
 export async function viewer(token) {
   const d = await gql('query{Viewer{id name avatar{large medium}}}', {}, { ttl: 0, token });
-  return { name: d.Viewer.name, avatar: d.Viewer.avatar?.large || d.Viewer.avatar?.medium || null };
+  return { id: d.Viewer.id, name: d.Viewer.name, avatar: d.Viewer.avatar?.large || d.Viewer.avatar?.medium || null };
+}
+
+// ---- account sync (only used when signed in) ----
+// Whole anime list of the user, regular lists only (custom lists would duplicate entries).
+export async function myList(token, userId) {
+  const q = `query($u:Int){MediaListCollection(userId:$u,type:ANIME){lists{isCustomList entries{id status updatedAt mediaId media{${CARD}}}}}}`;
+  const d = await gql(q, { u: Number(userId) }, { ttl: 0, token });
+  const out = [];
+  for (const l of d.MediaListCollection?.lists || []) {
+    if (l.isCustomList) continue;
+    for (const e of l.entries || []) if (e.media) out.push({ entryId: e.id, mediaId: e.mediaId, status: e.status, updatedAt: e.updatedAt || 0, media: norm(e.media) });
+  }
+  return out;
+}
+// ops: {t:'save', id, status:'PLANNING'|'COMPLETED'} | {t:'del', entryId}. One request, many aliases.
+export async function writeBatch(token, ops) {
+  const part = ops.map((o, i) => o.t === 'del'
+    ? `d${i}:DeleteMediaListEntry(id:${Number(o.entryId)}){deleted}`
+    : `s${i}:SaveMediaListEntry(mediaId:${Number(o.id)},status:${o.status === 'COMPLETED' ? 'COMPLETED' : 'PLANNING'}){id}`).join(' ');
+  await gql(`mutation{${part}}`, {}, { ttl: 0, token });
 }

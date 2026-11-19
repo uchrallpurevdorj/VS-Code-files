@@ -3,6 +3,7 @@ import { t, lang } from './i18n.js';
 import { store } from './store.js';
 import * as router from './router.js';
 import * as api from './api.js';
+import { syncNow, initSync } from './sync.js';
 import { home, prefetchHome } from './screens/home.js';
 import { notifications } from './screens/notifications.js';
 import { searchScreen } from './screens/search.js';
@@ -110,12 +111,15 @@ store.subscribe(() => {
 // ---------- AniList OAuth (implicit grant) ----------
 async function handleOAuth() {
   const m = location.hash.match(/access_token=([^&]+)/);
-  if (!m) return false;
-  const token = decodeURIComponent(m[1]);
-  history.replaceState(null, '', location.pathname + location.search + '#/profile');
+  const denied = /[#?&]error=/.test(location.hash + location.search);   // user pressed "Decline" on AniList
+  if (!m && !denied) return false;
+  const token = m ? decodeURIComponent(m[1]) : null;
+  const exp = Date.now() + (Number((location.hash.match(/expires_in=(\d+)/) || [])[1]) || 0) * 1000;
+  history.replaceState(null, '', location.pathname + (m ? location.search : '') + '#/profile');
+  if (!token) { setTimeout(() => toast(t('profile.loginFail')), 300); return true; }
   try {
     const v = await api.viewer(token);
-    store.setAuth({ token, name: v.name, avatar: v.avatar });
+    store.setAuth({ token, name: v.name, avatar: v.avatar, id: v.id, exp: exp > Date.now() ? exp : null });
     setTimeout(() => toast(t('profile.loginOk')), 300);
   } catch { setTimeout(() => toast(t('profile.loginFail')), 300); }
   return true;
@@ -217,6 +221,8 @@ async function boot() {
   else hideSplash();
   router.start();
   netBar();
+  initSync(oauth && !!store.auth);                                       // right after sign-in: sync now (below), not on a timer
+  if (oauth && store.auth) syncNow();                                    // first sync merges both lists; runs once the app is on screen
   if (sessionStorage.getItem('animore:updated')) { sessionStorage.removeItem('animore:updated'); setTimeout(() => toast(t('upd.done', { v: APP_VERSION })), 700); }
   setupSW();
   return oauth;

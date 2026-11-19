@@ -20,7 +20,10 @@ export const store = {
   history: read('history', []),    // [{id, at, m}]
   searches: read('searches', []),  // [string]
   notifRead: read('notifRead', []),
-  auth: read('auth', null),        // {token, name, avatar}
+  auth: read('auth', null),        // {token, name, avatar, id, exp}
+  pendingDel: read('pendingDel', []), // ids removed locally, still to delete on AniList
+  sync: { state: 'idle', done: 0, total: 0, at: read('syncAt', null), err: null }, // state: idle|syncing|ok|fail
+  savedHook: null,                 // set by sync.js: called after the user changes the saved list
 
   subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 
@@ -30,14 +33,24 @@ export const store = {
   savedStatus(id) { return this.saved.find(s => s.id === id)?.status || null; },
   toggleSaved(m) {
     const i = this.saved.findIndex(s => s.id === m.id);
-    if (i >= 0) this.saved.splice(i, 1); else this.saved.unshift({ id: m.id, status: 'planning', at: Date.now(), m: snap(m) });
-    write('saved', this.saved); emit();
+    if (i >= 0) {
+      this.saved.splice(i, 1);
+      if (this.auth) { this.pendingDel = [...new Set([...this.pendingDel, m.id])]; write('pendingDel', this.pendingDel); }
+    } else {
+      this.saved.unshift({ id: m.id, status: 'planning', at: Date.now(), st: Date.now(), m: snap(m) });
+      if (this.pendingDel.includes(m.id)) { this.pendingDel = this.pendingDel.filter(x => x !== m.id); write('pendingDel', this.pendingDel); }
+    }
+    write('saved', this.saved); emit(); this.savedHook?.();
     return i < 0;
   },
   setStatus(id, status) {
     const s = this.saved.find(x => x.id === id); if (!s) return;
-    s.status = status; write('saved', this.saved); emit();
+    s.status = status; s.st = Date.now(); write('saved', this.saved); emit(); this.savedHook?.();
   },
+  // Used by sync: replace the saved list without triggering another sync.
+  replaceSaved(list) { this.saved = list; write('saved', this.saved); emit(); },
+  clearPendingDel() { this.pendingDel = []; write('pendingDel', []); },
+  setSyncState(patch) { Object.assign(this.sync, patch); if ('at' in patch) write('syncAt', this.sync.at); emit(); },
 
   pushHistory(m) {
     this.history = [{ id: m.id, at: Date.now(), m: snap(m) }, ...this.history.filter(h => h.id !== m.id)].slice(0, 10);
