@@ -1,6 +1,6 @@
 // Builds data/network.json from OpenStreetMap (Overpass API). Run on any computer with internet:
 //   node scripts/build-data.mjs
-import { writeFile } from 'node:fs/promises';
+import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import https from 'node:https';
 import { BBOX, fromOverpass, compact, q, OVERPASS } from '../js/data.js';
 
@@ -31,10 +31,10 @@ async function overpass(body) {
   let err;
   for (let round = 1; round <= 4; round++) {
     for (const u of SERVERS) {
-      try { const r = await post(u, body, 120000); console.log('    ok:', new URL(u).hostname); return r; }
+      try { const r = await post(u, body, 45000); console.log('    ok:', new URL(u).hostname); return r; }
       catch (e) { err = e; console.log('    ' + new URL(u).hostname + ' failed:', e.message.split('\n')[0].slice(0, 60)); }
     }
-    if (round < 4) { console.log(`    all busy, waiting 20s (round ${round}/4)...`); await sleep(20000); }
+    if (round < 4) { console.log(`    all busy, waiting 15s (round ${round}/4)...`); await sleep(15000); }
   }
   throw err;
 }
@@ -47,11 +47,20 @@ function tiles(n) {
   return out;
 }
 
+const CACHE = new URL('./.cache/', import.meta.url);
+async function cached(key, fn) {
+  const f = new URL(key + '.json', CACHE);
+  try { const r = JSON.parse(await readFile(f, 'utf8')); console.log('    cached'); return r; } catch (e) { /* not cached */ }
+  const r = await fn();
+  await mkdir(CACHE, { recursive: true }); await writeFile(f, JSON.stringify(r));
+  return r;
+}
+
 async function collect(label, n, make) {
   const seen = new Map(); let k = 0;
   for (const t of tiles(n)) {
     k++; console.log(`  ${label} ${k}/${n * n}`);
-    const r = await overpass(q(make(t)));
+    const r = await cached(`${label}-${n}-${t}`, () => overpass(q(make(t))));
     for (const el of r.elements) seen.set(el.type + el.id, el);
   }
   return { elements: [...seen.values()] };
@@ -62,7 +71,7 @@ try {
   const stops = await collect('stops', 2, t => `node["highway"="bus_stop"](${t});out;`);
   console.log(`  total ${stops.elements.length} stop nodes`);
   console.log('Fetching bus routes...');
-  const routes = await collect('routes', 3, t => `relation["route"="bus"](${t});out geom;`);
+  const routes = await collect('routes', 4, t => `relation["route"="bus"](${t});out geom;`);
   console.log(`  total ${routes.elements.length} route relations`);
   const net = fromOverpass(stops, routes);
   const used = new Set(net.routes.flatMap(r => r.stops));
