@@ -54,7 +54,7 @@ export function icon(name, size = 24, { fill = false, sw = 1.8 } = {}) {
   return span.firstChild;
 }
 
-// Anidex logo (from Figma). Stroke width is relative to a 131x218 viewBox.
+// Animore logo (from Figma). Stroke width is relative to a 131x218 viewBox.
 export function logo(height = 44, stroke = 14) {
   const span = document.createElement('span');
   span.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 143 230" style="height:${height}px;width:auto" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M63.63 164.42 125.61 205.44 101.99 133.68M101.99 133.68 59.65 5 5 212.27 101.99 133.68Z"/></svg>`;

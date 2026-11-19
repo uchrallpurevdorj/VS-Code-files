@@ -1,6 +1,6 @@
 // Machine translation of anime synopses (English -> Mongolian).
 // Results are cached on the device, so each synopsis is translated once and then works offline.
-const KEY = 'anidex:v1:tr:';
+const KEY = 'animore:v1:tr:';
 const MAX_ENTRIES = 80;
 const CHUNK = 450;          // MyMemory limit is 500 bytes per request, so we stay under it
 const inflight = new Map();

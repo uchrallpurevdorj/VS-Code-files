@@ -1,6 +1,6 @@
 {
-  "name": "Anidex",
-  "short_name": "Anidex",
+  "name": "Animore",
+  "short_name": "Animore",
   "description": "Аниме мэдээлэл, тренд, шинэ улирал. Data by AniList.",
   "lang": "mn",
   "start_url": "./",

@@ -65,7 +65,7 @@ async function onRoute(r, opts = {}) {
   }
   if (r.name === 'search' && el.autofocusSearch && !opts.keepScroll) el.autofocusSearch();
   const names = { home: 'nav.home', search: 'nav.search', saved: 'nav.saved', profile: 'nav.profile', notifications: 'notif.title' };
-  document.title = (names[r.name] ? t(names[r.name]) + ' · ' : '') + 'Anidex';
+  document.title = (names[r.name] ? t(names[r.name]) + ' · ' : '') + 'Animore';
   lastPath = r.path;
 }
 
@@ -167,25 +167,25 @@ function offlineGate() {
 let refreshing = false, prompting = false;
 function workerVersion(w) {
   return new Promise(res => {
-    try { const ch = new MessageChannel(); ch.port1.onmessage = e => res(String(e.data || '').replace(/^anidex-v/, '')); w.postMessage('GET_VERSION', [ch.port2]); } catch { res(''); }
+    try { const ch = new MessageChannel(); ch.port1.onmessage = e => res(String(e.data || '').replace(/^animore-v/, '')); w.postMessage('GET_VERSION', [ch.port2]); } catch { res(''); }
     setTimeout(() => res(''), 800);
   });
 }
 async function promptUpdate(w) {
-  if (prompting || sessionStorage.getItem('anidex:upd:later')) return;
+  if (prompting || sessionStorage.getItem('animore:upd:later')) return;
   prompting = true;
   const v = await workerVersion(w);
   const s = sheet(t('upd.title'),
     v ? h('div', { class: 'vchip' }, `${APP_VERSION}  →  ${v}`) : null,
     h('p', { class: 't-body muted' }, t('upd.text')),
     h('button', { class: 'btn primary block', type: 'button', onclick: () => { s.close(); applyUpdate(w); } }, t('upd.now')),
-    h('button', { class: 'btn outline block', type: 'button', onclick: () => { sessionStorage.setItem('anidex:upd:later', '1'); s.close(); } }, t('upd.later')));
+    h('button', { class: 'btn outline block', type: 'button', onclick: () => { sessionStorage.setItem('animore:upd:later', '1'); s.close(); } }, t('upd.later')));
 }
 function applyUpdate(w) {
   $('app').append(h('div', { id: 'updating', role: 'status' },
-    h('div', { class: 'logo-slot' }, logo(120, 14)), h('div', { class: 'name' }, 'Anidex'),
+    h('div', { class: 'logo-slot' }, logo(120, 14)), h('div', { class: 'name' }, 'Animore'),
     h('div', { class: 'bar' }, h('i')), h('div', { class: 'upd-text' }, t('upd.updating')), h('div', { class: 'credit' }, 'Data by AniList')));
-  sessionStorage.setItem('anidex:updated', '1');
+  sessionStorage.setItem('animore:updated', '1');
   refreshing = true;
   w.postMessage('SKIP_WAITING');
   setTimeout(() => location.reload(), 6000);   // safety net
@@ -217,7 +217,7 @@ async function boot() {
   else hideSplash();
   router.start();
   netBar();
-  if (sessionStorage.getItem('anidex:updated')) { sessionStorage.removeItem('anidex:updated'); setTimeout(() => toast(t('upd.done', { v: APP_VERSION })), 700); }
+  if (sessionStorage.getItem('animore:updated')) { sessionStorage.removeItem('animore:updated'); setTimeout(() => toast(t('upd.done', { v: APP_VERSION })), 700); }
   setupSW();
   return oauth;
 }

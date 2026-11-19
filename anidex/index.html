@@ -1,46 +1,14 @@
 <!doctype html>
-<html lang="mn" data-theme="dark">
+<html lang="mn">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Anidex</title>
-  <meta name="description" content="Anidex — аниме мэдээлэл, тренд, шинэ улирал. Data by AniList.">
-  <meta name="theme-color" content="#141414">
-  <meta name="color-scheme" content="dark light">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Anidex">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="preload" href="fonts/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/inter-cyrillic-700-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://graphql.anilist.co" crossorigin>
-  <link rel="preconnect" href="https://s4.anilist.co" crossorigin>
-  <link rel="stylesheet" href="css/styles.css">
-  <script>
-    // Apply saved theme before first paint (no flash).
-    try {
-      var s = JSON.parse(localStorage.getItem('anidex:v1:settings') || '{}');
-      var th = s.theme === 'light' ? 'light' : s.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 'dark';
-      document.documentElement.dataset.theme = th;
-    } catch (e) {}
-  </script>
+  <title>Animore</title>
+  <meta name="robots" content="noindex">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>location.replace('/animore/' + location.search + location.hash);</script>
+  <meta http-equiv="refresh" content="0; url=/animore/">
 </head>
-<body>
-  <div id="app">
-    <main id="view" aria-live="polite"></main>
-    <div id="bottom-fade" aria-hidden="true"></div>
-    <nav id="tabbar" aria-label="Main"></nav>
-    <div id="splash" role="status" aria-label="Loading">
-      <div class="logo-slot"></div>
-      <div class="name">Anidex</div>
-      <div class="bar"><i></i></div>
-      <div class="credit">Data by AniList</div>
-    </div>
-    <noscript><p style="padding:24px">Anidex requires JavaScript.</p></noscript>
-  </div>
-  <script type="module" src="js/app.js"></script>
+<body style="background:#141414;color:#f5f5f5;font-family:system-ui,sans-serif;padding:24px">
+  <p>Anidex has been renamed to <a href="/animore/" style="color:#ff5a5a">Animore</a>.</p>
 </body>
 </html>

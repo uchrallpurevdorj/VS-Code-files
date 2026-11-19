@@ -2,7 +2,7 @@
 import { API_URL } from './config.js';
 
 const CARD = `id title{romaji english native} coverImage{large extraLarge color} averageScore episodes format seasonYear genres status`;
-const CP = 'anidex:v1:c:';
+const CP = 'animore:v1:c:';
 const mem = new Map();
 
 function lsGet(key) { try { return JSON.parse(localStorage.getItem(CP + key)); } catch { return null; } }

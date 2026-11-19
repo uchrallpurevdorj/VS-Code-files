@@ -84,7 +84,7 @@ export function language() {
 export function about() {
   const root = h('div', { class: 'screen' }, navbar(t('profile.about'), '/profile'));
   root.append(
-    h('div', { class: 'about-hero' }, logo(88, 14), h('div', { class: 't-app' }, 'Anidex'), h('div', { class: 't-cap muted' }, t('about.version') + ' ' + APP_VERSION),
+    h('div', { class: 'about-hero' }, logo(88, 14), h('div', { class: 't-app' }, 'Animore'), h('div', { class: 't-cap muted' }, t('about.version') + ' ' + APP_VERSION),
       h('p', { class: 't-body muted' }, t('about.desc'))),
     h('div', { class: 'group' },
       h('div', { class: 'inforow' }, h('span', null, t('about.version')), h('span', { class: 'muted' }, APP_VERSION)),

@@ -14,7 +14,7 @@ export async function home() {
 
   root.append(h('header', { class: 'home-head' },
     h('div', { class: 'brand' }, logo(44, 14),
-      h('div', { class: 'greet' }, h('span', { class: 't-cap muted', style: { fontSize: '13px' } }, t('home.greeting')), h('span', { class: 't-app' }, 'Anidex'))),
+      h('div', { class: 'greet' }, h('span', { class: 't-cap muted', style: { fontSize: '13px' } }, t('home.greeting')), h('span', { class: 't-app' }, 'Animore'))),
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('notif.title'), onclick: () => go('/notifications') },
       icon('bell', 26), unread ? h('span', { class: 'dot' }) : null)));
 

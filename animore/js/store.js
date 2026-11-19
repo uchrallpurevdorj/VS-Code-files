@@ -1,5 +1,5 @@
 // Local persistence + tiny pub/sub. Everything lives in localStorage on the device.
-const K = 'anidex:v1:';
+const K = 'animore:v1:';
 const read = (k, d) => { try { const v = localStorage.getItem(K + k); return v == null ? d : JSON.parse(v); } catch { return d; } };
 const write = (k, v) => { try { localStorage.setItem(K + k, JSON.stringify(v)); } catch { /* storage full/blocked */ } };
 

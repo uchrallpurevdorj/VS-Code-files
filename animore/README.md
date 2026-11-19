@@ -1,4 +1,4 @@
-# Anidex
+# Animore
 
 Anime info PWA (pure HTML/CSS/JS, no build step). Data by AniList.
 
