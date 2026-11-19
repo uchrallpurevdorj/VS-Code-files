@@ -69,7 +69,7 @@ export async function home() {
     clear(seasonSec).append(sectionHead(t('home.newSeason'), t('home.seeAll'), () => go('/list/season')), skeletonRows());
     try {
       const r = await api.newSeason({ perPage: 6 });
-      clear(seasonSec).append(sectionHead(t('home.newSeason'), t('home.seeAll'), () => go('/list/season')), h('div', { class: 'stack' }, r.items.map(arow)));
+      clear(seasonSec).append(sectionHead(t('home.newSeason'), t('home.seeAll'), () => go('/list/season')), h('div', { class: 'stack cols2' }, r.items.map(arow)));
     } catch (e) { clear(seasonSec).append(sectionHead(t('home.newSeason')), errorState(loadSeason, true, e)); }
   }
   loadSeason();

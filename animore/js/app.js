@@ -82,7 +82,7 @@ function buildTabs() {
     const content = key === 'profile' && store.auth?.avatar
       ? h('img', { class: 'avatar-mini', src: store.auth.avatar, alt: '', referrerpolicy: 'no-referrer' })
       : icon(ic, 24);
-    const b = h('button', { class: 'tab', type: 'button', 'aria-label': t('nav.' + key), onclick: () => tapTab(key) }, h('span', null, content));
+    const b = h('button', { class: 'tab', type: 'button', 'aria-label': t('nav.' + key), onclick: () => tapTab(key) }, h('span', null, content), h('small', { class: 'tab-label', 'aria-hidden': 'true' }, t('nav.' + key)));
     tabEls[key] = b; tabbar.append(b);
   });
 }
@@ -91,14 +91,20 @@ function tapTab(key) {
   if (router.parse().path === path) { $('view').firstElementChild?.scrollTo?.({ top: 0, behavior: 'smooth' }); return; }
   router.go(path);
 }
+// Tablet / wide screens: the tab bar becomes a side rail that stays visible on every screen.
+const wide = matchMedia('(min-width:600px)');
+let lastHidden = false;
 function setTab(key, hidden) {
+  lastHidden = hidden;
   const idx = Math.max(0, TABS.findIndex(x => x[0] === key));
   tabbar.style.setProperty('--i', idx);
   TABS.forEach(([k]) => { if (tabEls[k]) tabEls[k].toggleAttribute('aria-current', false), tabEls[k].removeAttribute('aria-current'); });
   if (tabEls[key]) tabEls[key].setAttribute('aria-current', 'page');
   tabbar.classList.toggle('hidden', !!hidden); fade.classList.toggle('hidden', !!hidden);
-  tabbar.toggleAttribute('inert', !!hidden);
+  tabbar.toggleAttribute('inert', !!hidden && !wide.matches);
 }
+
+wide.addEventListener?.('change', () => setTab(lastTab, lastHidden));
 
 // ---------- store reactions ----------
 let lastSettings = JSON.stringify(store.settings), lastAuth = JSON.stringify(store.auth);

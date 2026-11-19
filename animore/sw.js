@@ -1,5 +1,5 @@
 // Animore service worker: offline app shell. API data is cached by the app (localStorage), images by the HTTP cache.
-const VERSION = 'animore-v1.4.0';
+const VERSION = 'animore-v1.5.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/styles.css',
   'js/app.js', 'js/api.js', 'js/config.js', 'js/dom.js', 'js/i18n.js', 'js/router.js', 'js/store.js', 'js/ui.js', 'js/translate.js', 'js/sync.js',

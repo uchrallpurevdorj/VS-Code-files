@@ -1,5 +1,5 @@
 // Animore configuration
-export const APP_VERSION = '1.4.0';
+export const APP_VERSION = '1.5.0';
 export const API_URL = 'https://graphql.anilist.co';
 
 // Optional: AniList OAuth client id (https://anilist.co/settings/developer).

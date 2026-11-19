@@ -39,7 +39,7 @@ export function searchScreen() {
       if (!r.items.length) { body.append(emptyState({ ic: 'search', title: t('search.notFound'), text: t('search.notFoundHint', { q }) })); return; }
       body.append(h('section', { class: 'section', style: { gap: '16px' } },
         h('div', { class: 't-cap muted' }, t('search.results', { n: r.items.length + (r.hasNext ? '+' : '') })),
-        h('div', { class: 'stack', onclick: () => store.addSearch(q) }, r.items.map(arow))));
+        h('div', { class: 'stack cols2', onclick: () => store.addSearch(q) }, r.items.map(arow))));
     } catch (e) { if (mine === token) clear(body).append((errKind(e) === 'network' ? emptyState({ ic: 'wifioff', title: t('search.needNet'), text: t('search.needNetText') }) : errorState(() => run(q), false, e))); }
   }
 

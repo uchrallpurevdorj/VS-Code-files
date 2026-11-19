@@ -82,12 +82,13 @@ function setRow(ic, label, value, onclick) {
 
 export function profile() {
   const root = h('div', { class: 'screen' });
+  const left = h('div', { class: 'pcol' }), right = h('div', { class: 'pcol' });
   root.append(h('div', { class: 'row', style: { justifyContent: 'space-between' } }, h('h1', { class: 't-detail' }, t('profile.title')), notificationBell()));
 
   const a = store.auth;
   if (a) {
     const syncHost = h('div', { class: 'synchost' }, syncCard()), statsHost = h('div', { class: 'statshost' }, statsCard());
-    root.append(
+    left.append(
       h('div', { class: 'row', style: { gap: '16px' } },
         h('div', { class: 'avatar ring' }, a.avatar ? h('img', { src: a.avatar, alt: '', referrerpolicy: 'no-referrer' }) : icon('user', 36)),
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 } }, h('div', { class: 't-section clamp1' }, a.name), h('div', { class: 't-cap muted' }, '@' + a.name))),
@@ -100,23 +101,24 @@ export function profile() {
       syncHost.replaceChildren(syncCard()); statsHost.replaceChildren(statsCard());
     });
   } else {
-    root.append(h('div', { class: 'card guest' },
+    left.append(h('div', { class: 'card guest' },
       guestAvatar(36), h('h2', { class: 't-section' }, t('profile.guest')), h('p', { class: 't-cap muted' }, t('profile.guestText')),
       h('button', { class: 'btn primary block', type: 'button', onclick: startLogin }, t('profile.login'))));
   }
 
   const themeLabel = { dark: t('appearance.dark'), light: t('appearance.light'), system: t('appearance.system') }[store.settings.theme] || t('appearance.dark');
-  root.append(h('div', { class: 'group' },
+  right.append(h('div', { class: 'group' },
     setRow('moon', t('profile.appearance'), themeLabel, () => go('/profile/appearance')),
     setRow('globe', t('profile.language'), store.settings.lang === 'en' ? 'English' : 'Монгол', () => go('/profile/language')),
     setRow('info', t('profile.about'), null, () => go('/profile/about'))));
 
-  if (a) root.append(h('button', { class: 'btn danger block', type: 'button', onclick: logoutSheet }, icon('logout', 20), t('profile.logout')));
+  if (a) right.append(h('button', { class: 'btn danger block', type: 'button', onclick: logoutSheet }, icon('logout', 20), t('profile.logout')));
+  root.append(h('div', { class: 'pcols' }, left, right));
   return root;
 }
 
 export function appearance() {
-  const root = h('div', { class: 'screen' }, navbar(t('profile.appearance'), '/profile'));
+  const root = h('div', { class: 'screen narrow' }, navbar(t('profile.appearance'), '/profile'));
   const sw = (bg, bar) => h('div', { style: { background: bg } }, h('i', { style: { width: '60%', background: bar } }), h('i', { style: { width: '40%', background: '#FF0000' } }));
   const opts = [
     ['dark', t('appearance.dark'), t('appearance.darkSub'), h('div', { class: 'swatch' }, sw('#141414', '#343434'))],
@@ -131,7 +133,7 @@ export function appearance() {
 }
 
 export function language() {
-  const root = h('div', { class: 'screen' }, navbar(t('profile.language'), '/profile'));
+  const root = h('div', { class: 'screen narrow' }, navbar(t('profile.language'), '/profile'));
   const list = h('div', { class: 'stack', style: { gap: '12px' }, role: 'radiogroup' });
   [['mn', 'MN', t('lang.mn'), t('lang.mnSub')], ['en', 'EN', t('lang.en'), t('lang.enSub')]].forEach(([k, b, label, sub]) =>
     list.append(h('button', { class: 'opt', type: 'button', role: 'radio', 'aria-checked': String(store.settings.lang === k), onclick: () => { store.setSetting('lang', k); refresh(); } },
@@ -142,7 +144,7 @@ export function language() {
 }
 
 export function about() {
-  const root = h('div', { class: 'screen' }, navbar(t('profile.about'), '/profile'));
+  const root = h('div', { class: 'screen narrow' }, navbar(t('profile.about'), '/profile'));
   root.append(
     h('div', { class: 'about-hero' }, logo(88, 14), h('div', { class: 't-app' }, 'Animore'), h('div', { class: 't-cap muted' }, t('about.version') + ' ' + APP_VERSION),
       h('p', { class: 't-body muted' }, t('about.desc'))),
@@ -156,7 +158,7 @@ export function about() {
 }
 
 export function legal() {
-  const root = h('div', { class: 'screen' }, navbar(t('legal.title'), '/profile/about'));
+  const root = h('div', { class: 'screen narrow' }, navbar(t('legal.title'), '/profile/about'));
   const list = h('div', { class: 'stack', style: { gap: '12px' } });
   [1, 2, 3, 4, 5].forEach(n => list.append(h('div', { class: 'card legal' }, h('h2', { class: 't-card' }, t(`legal.${n}.t`)), h('p', { class: 't-body muted' }, t(`legal.${n}.b`)))));
   root.append(list);
