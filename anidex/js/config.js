@@ -1,5 +1,5 @@
 // Anidex configuration
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '1.2.0';
 export const API_URL = 'https://graphql.anilist.co';
 
 // Optional: AniList OAuth client id (https://anilist.co/settings/developer).

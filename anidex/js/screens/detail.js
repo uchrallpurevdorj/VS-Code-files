@@ -1,8 +1,9 @@
 import { h, icon, img, clear } from '../dom.js';
-import { t, genreName, formatName, statusName, seasonName, sourceName } from '../i18n.js';
+import { t, lang, genreName, formatName, statusName, seasonName, sourceName } from '../i18n.js';
 import { store } from '../store.js';
 import { back } from '../router.js';
 import * as api from '../api.js';
+import { translate, cached } from '../translate.js';
 import { pcard, chip, sheet, modal, toast, errorState, epsText, joinMeta } from '../ui.js';
 
 export async function detail([id]) {
@@ -64,15 +65,7 @@ export async function detail([id]) {
       nextEl = h('div', { class: 'nextep' }, h('span', { class: 'pulse' }), h('span', null, t('detail.nextEp') + ': ', h('b', null, '#' + m.next.episode), '  ·  ', when));
     }
 
-    // description
-    const desc = h('p', { class: 't-body desc' }, m.description || t('detail.noDesc'));
-    let descWrap = desc;
-    if (m.description && m.description.length > 220) {
-      desc.classList.add('clamped');
-      const more = h('button', { class: 'more', type: 'button', 'aria-expanded': 'false' }, t('detail.more'));
-      more.addEventListener('click', () => { const open = desc.classList.toggle('clamped'); more.textContent = open ? t('detail.more') : t('detail.less'); more.setAttribute('aria-expanded', String(!open)); });
-      descWrap = h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } }, desc, more);
-    }
+    const descWrap = descBlock(m, root);
 
     // actions
     const actions = h('div', { class: 'actions' });
@@ -139,4 +132,47 @@ function trailerCard(m) {
         h('div', { class: 't-card clamp1' }, m.title), h('div', { class: 't-cap muted' }, t('detail.trailerShort'))),
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.close'), onclick: close }, icon('close', 22))),
     h('div', { class: 'video' }, h('iframe', { src, title: m.title, allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' }))));
+}
+
+// Synopsis block. In Mongolian mode the English synopsis is machine-translated (and cached on the device).
+function textBlock(text) {
+  const desc = h('p', { class: 't-body desc' }, text);
+  if (text.length <= 220) return desc;
+  desc.classList.add('clamped');
+  const more = h('button', { class: 'more', type: 'button', 'aria-expanded': 'false' }, t('detail.more'));
+  more.addEventListener('click', () => { const open = desc.classList.toggle('clamped'); more.textContent = open ? t('detail.more') : t('detail.less'); more.setAttribute('aria-expanded', String(!open)); });
+  return h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } }, desc, more);
+}
+
+function trNote(ic, text, linkText, onLink) {
+  return h('div', { class: 'tnote' + (ic === 'spin' ? ' busy' : ''), role: ic === 'spin' ? 'status' : null },
+    icon(ic, 14, { sw: 2.2 }), h('span', null, text),
+    linkText ? [h('span', { class: 'dot', 'aria-hidden': 'true' }, '·'), h('button', { class: 'tlink', type: 'button', onclick: onLink }, linkText)] : null);
+}
+
+function descBlock(m, root) {
+  if (!m.description) return h('p', { class: 't-body desc' }, t('detail.noDesc'));
+  if (lang() !== 'mn') return textBlock(m.description);
+  const wrap = h('div', { class: 'descwrap' });
+  let mode = 'translating'; let tr = '';
+  const render = () => {
+    clear(wrap);
+    if (mode === 'translating') {
+      wrap.append(h('div', { class: 'tskel', 'aria-hidden': 'true' }, [1, 2, 3, 4].map(() => h('div', { class: 'sk sk-line' }))), trNote('spin', t('tr.ing')));
+    } else if (mode === 'translated') {
+      wrap.append(textBlock(tr), trNote('lang', t('tr.auto'), t('tr.showOrig'), () => { mode = 'original'; render(); }));
+    } else if (mode === 'original') {
+      wrap.append(textBlock(m.description), trNote('lang', t('tr.orig'), t('tr.back'), () => { mode = 'translated'; render(); }));
+    } else {
+      wrap.append(textBlock(m.description), trNote('warn', t('tr.fail'), t('tr.retry'), start));
+    }
+  };
+  function start() {
+    mode = 'translating'; render();
+    translate(m.id, m.description).then(r => { if (!root.isConnected) return; tr = r; mode = 'translated'; render(); })
+      .catch(() => { if (!root.isConnected) return; mode = 'failed'; render(); });
+  }
+  const hit = cached(m.id, m.description);
+  if (hit) { tr = hit; mode = 'translated'; render(); } else start();
+  return wrap;
 }

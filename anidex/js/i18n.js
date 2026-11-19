@@ -16,7 +16,7 @@ const MN = {
   'search.notFoundHint': '“{q}” нэрээр аниме олдсонгүй. Өөр нэрээр хайж үзнэ үү.',
   'saved.title': 'Хадгалсан', 'saved.count': '{n} аниме', 'saved.all': 'Бүгд', 'saved.planning': 'Үзэх', 'saved.watched': 'Үзсэн',
   'saved.empty': 'Хадгалсан аниме алга', 'saved.emptyText': 'Дуртай анимегаа хадгалахад энд харагдана.', 'saved.emptyBtn': 'Аниме хайх',
-  'saved.added': 'Хадгаллаа', 'saved.removed': 'Хадгалсанаас хаслаа', 'saved.filterEmpty': 'Энэ ангилалд аниме алга',
+  'saved.added': 'Хадгаллаа', 'saved.removed': 'Хадгалснаас хаслаа', 'saved.filterEmpty': 'Энэ ангилалд аниме алга',
   'notif.title': 'Мэдэгдэл', 'notif.empty': 'Мэдэгдэл алга байна', 'notif.emptyText': 'Шинэ мэдэгдэл ирэхэд энд харагдана.',
   'notif.v1.title': 'Шинэчлэл', 'notif.v1.body': 'Anidex 1.0 хувилбар гарлаа! Орж аниме мэдээллээ үзээрэй.',
   'profile.title': 'Профайл', 'profile.guest': 'Зочин', 'profile.guestText': 'Нэвтэрч орвол хадгалсан, үзсэн жагсаалтаа бүх төхөөрөмж дээрээ харна.',
@@ -53,6 +53,8 @@ const MN = {
   'detail.trailerShort': 'Трэйлер', 'detail.trailerNeedNet': 'Трэйлер · интернэт хэрэгтэй', 'profile.loginNeedNet': 'Нэвтрэхэд интернэт хэрэгтэй',
   'search.needNet': 'Интернэт алга', 'search.needNetText': 'Хайхад интернэт хэрэгтэй. Холбогдсоны дараа дахин хайна уу.',
   'sec.seeAllTitle': 'Бүгд',
+  'tr.auto': 'Автоматаар орчуулсан', 'tr.showOrig': 'Эх хувийг харах', 'tr.orig': 'Эх хувь · English', 'tr.back': 'Монгол руу буцах',
+  'tr.ing': 'Орчуулж байна…', 'tr.fail': 'Орчуулж чадсангүй', 'tr.retry': 'Дахин оролдох',
 };
 const EN = {
   'nav.home': 'Home', 'nav.search': 'Search', 'nav.saved': 'Saved', 'nav.profile': 'Profile',
@@ -107,6 +109,8 @@ const EN = {
   'detail.trailerShort': 'Trailer', 'detail.trailerNeedNet': 'Trailer · needs internet', 'profile.loginNeedNet': 'Signing in needs internet',
   'search.needNet': 'You are offline', 'search.needNetText': 'Search needs internet. Try again once you are connected.',
   'sec.seeAllTitle': 'All',
+  'tr.auto': 'Machine translated', 'tr.showOrig': 'Show original', 'tr.orig': 'Original · English', 'tr.back': 'Back to Mongolian',
+  'tr.ing': 'Translating…', 'tr.fail': "Couldn't translate", 'tr.retry': 'Try again',
 };
 const DICT = { mn: MN, en: EN };
 
@@ -122,7 +126,7 @@ const STATUS_MN = { FINISHED: 'Дууссан', RELEASING: 'Гарч байга�
 const STATUS_EN = { FINISHED: 'Finished', RELEASING: 'Airing', NOT_YET_RELEASED: 'Not yet aired', CANCELLED: 'Cancelled', HIATUS: 'On hiatus' };
 const SEASON_MN = { WINTER: 'Өвөл', SPRING: 'Хавар', SUMMER: 'Зун', FALL: 'Намар' };
 const SEASON_EN = { WINTER: 'Winter', SPRING: 'Spring', SUMMER: 'Summer', FALL: 'Fall' };
-const SOURCE_MN = { ORIGINAL: 'Эх бүтээл', MANGA: 'Манга', LIGHT_NOVEL: 'Light novel', VISUAL_NOVEL: 'Visual novel', VIDEO_GAME: 'Тоглоом', OTHER: 'Бусад', NOVEL: 'Роман', WEB_NOVEL: 'Web novel', ANIME: 'Аниме', COMIC: 'Комик', DOUJINSHI: 'Додзинси', LIVE_ACTION: 'Кино', GAME: 'Тоглоом', MULTIMEDIA_PROJECT: 'Мультимедиа' };
+const SOURCE_MN = { ORIGINAL: 'Эх бүтээл', MANGA: 'Манга', LIGHT_NOVEL: 'Лайт новел', VISUAL_NOVEL: 'Визуал новел', VIDEO_GAME: 'Тоглоом', OTHER: 'Бусад', NOVEL: 'Роман', WEB_NOVEL: 'Вэб новел', ANIME: 'Аниме', COMIC: 'Комик', DOUJINSHI: 'Додзинси', LIVE_ACTION: 'Кино', GAME: 'Тоглоом', MULTIMEDIA_PROJECT: 'Мультимедиа' };
 const SOURCE_EN = { ORIGINAL: 'Original', MANGA: 'Manga', LIGHT_NOVEL: 'Light novel', VISUAL_NOVEL: 'Visual novel', VIDEO_GAME: 'Video game', OTHER: 'Other', NOVEL: 'Novel', WEB_NOVEL: 'Web novel', ANIME: 'Anime', COMIC: 'Comic', DOUJINSHI: 'Doujinshi', LIVE_ACTION: 'Live action', GAME: 'Game', MULTIMEDIA_PROJECT: 'Multimedia' };
 const pick = (mn, en) => (lang() === 'en' ? en : mn);
 

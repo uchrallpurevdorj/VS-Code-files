@@ -305,3 +305,13 @@ button.setrow:active{background:var(--surface-2)}
 #gate{position:absolute;inset:0;z-index:150;background:var(--bg);padding:0 var(--sp-20);animation:fade .2s ease-out both}
 .spinner{display:block;width:40px;height:40px;border-radius:50%;border:4px solid transparent;border-top-color:var(--accent);border-right-color:var(--accent);border-bottom-color:var(--accent);animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* v1.2 synopsis translation */
+.descwrap{display:flex;flex-direction:column;gap:10px}
+.tskel{display:flex;flex-direction:column;gap:10px}
+.tskel .sk-line{height:16px}
+.tskel .sk-line:last-child{width:60%}
+.tnote{display:flex;align-items:center;flex-wrap:wrap;gap:6px;color:var(--muted);font-size:12px;line-height:1.35}
+.tnote .dot{opacity:.7}
+.tnote .tlink{color:var(--accent-text);font-size:12px;font-weight:600;padding:6px 0}
+.tnote.busy svg{animation:spin .9s linear infinite}
