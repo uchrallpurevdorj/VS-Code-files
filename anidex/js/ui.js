@@ -74,13 +74,50 @@ export function emptyState({ ic = 'search', title, text, btn, onBtn }) {
     text ? h('p', { class: 't-cap muted' }, text) : null,
     btn ? h('button', { class: 'btn primary', type: 'button', onclick: onBtn, style: { marginTop: '8px' } }, btn) : null);
 }
-export function errorState(retry, compact = false) {
-  const el = h('div', { class: compact ? 'card' : 'empty', style: compact ? { padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center' } : null },
-    compact ? icon('wifi', 28) : h('div', { class: 'circle' }, icon('wifi', 40)),
-    h('h2', { class: 't-card' }, t('common.error')),
-    h('p', { class: 't-cap muted' }, t('common.errorText')),
-    h('button', { class: compact ? 'chip' : 'btn primary', type: 'button', onclick: retry, style: compact ? null : { marginTop: '8px' } }, t('common.retry')));
-  return el;
+// ---- errors ----
+// kind: network (offline / no answer) | server | rate | notfound | gen
+export function errKind(err) {
+  if (!navigator.onLine || err?.kind === 'network') return 'network';
+  return { server: 'server', rate: 'rate', notfound: 'notfound' }[err?.kind] || 'gen';
+}
+const ERR = {
+  network: { ic: 'wifi', t: 'common.error', b: 'common.errorText' },
+  server: { ic: 'warn', t: 'err.server.t', b: 'err.server.b' },
+  rate: { ic: 'clock', t: 'err.rate.t', b: 'err.rate.b' },
+  notfound: { ic: 'searchx', t: 'err.nf.t', b: 'err.nf.b' },
+  gen: { ic: 'alert', t: 'err.gen.t', b: 'err.gen.b' },
+};
+function countdown(btn, n, retry) {
+  const label = () => { btn.textContent = t('common.retryIn', { n }); };
+  btn.disabled = true; label();
+  const iv = setInterval(() => {
+    if (!btn.isConnected) { clearInterval(iv); return; }
+    n--;
+    if (n <= 0) { clearInterval(iv); btn.disabled = false; btn.textContent = t('common.retry'); retry(); } else label();
+  }, 1000);
+}
+export function errorState(retry, compact = false, err = null) {
+  const kind = errKind(err); const k = ERR[kind];
+  const big = !compact;
+  const btn = (label, primary, fn) => h('button', { class: compact ? 'chip' : 'btn ' + (primary ? 'primary' : 'outline'), type: 'button', onclick: fn }, label);
+  const actions = [];
+  if (kind === 'notfound') actions.push(btn(t('common.home'), true, () => go('/home')));
+  else {
+    const r = btn(t('common.retry'), true, retry); actions.push(r);
+    if (kind === 'rate') requestAnimationFrame(() => countdown(r, 30, retry));
+    if (big && (kind === 'server' || kind === 'gen')) actions.push(btn(t('common.home'), false, () => go('/home')));
+  }
+  return h('div', { class: compact ? 'card errcard' : 'empty' },
+    compact ? icon(k.ic, 28) : h('div', { class: 'circle' }, icon(k.ic, 40)),
+    h('h2', { class: 't-card' }, t(k.t)),
+    h('p', { class: 't-cap muted' }, t(k.b)),
+    h('div', { class: 'err-actions' }, actions));
+}
+// Full-screen error (route failed to render / unknown page)
+export function errorScreen(err, retry) {
+  const root = h('div', { class: 'screen no-tab' });
+  root.append(errorState(retry || (() => location.reload()), false, err));
+  return root;
 }
 
 export function navbar(title, fallback) {
@@ -114,3 +151,20 @@ export function toast(text) {
 }
 
 export { clear };
+
+// Centered modal card over a blurred, dimmed app (fade in/out). content(close) returns the card element.
+export function modal(content) {
+  const app = document.getElementById('app');
+  let closed = false;
+  const close = () => {
+    if (closed) return; closed = true;
+    document.removeEventListener('keydown', esc);
+    ov.querySelector('iframe')?.remove();
+    ov.classList.add('closing');
+    setTimeout(() => ov.remove(), 170);
+  };
+  const esc = e => { if (e.key === 'Escape') close(); };
+  const ov = h('div', { class: 'overlay center', onclick: e => { if (e.target === ov) close(); } }, content(close));
+  app.append(ov); document.addEventListener('keydown', esc);
+  return { close, el: ov };
+}

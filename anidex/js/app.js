@@ -10,7 +10,8 @@ import { saved } from './screens/saved.js';
 import { detail } from './screens/detail.js';
 import { listScreen } from './screens/list.js';
 import { profile, appearance, language, about, legal } from './screens/profile.js';
-import { toast } from './ui.js';
+import { toast, sheet, errorScreen } from './ui.js';
+import { APP_VERSION } from './config.js';
 
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -41,7 +42,7 @@ router.define([
   { name: 'list', re: /^\/list\/([a-z]+)(?:\/([a-z]+))?$/, tab: null, fn: listScreen },
 ], onRoute);
 
-const FNS = { home, notifications, search: searchScreen, saved, profile, appearance, language, about, legal, detail, list: listScreen };
+const FNS = { notfound: () => errorScreen({ kind: 'notfound' }), home, notifications, search: searchScreen, saved, profile, appearance, language, about, legal, detail, list: listScreen };
 const TAB_ROOTS = new Set(['/home', '/search', '/saved', '/profile']);
 let lastPath = null, lastTab = 'home';
 
@@ -50,11 +51,13 @@ async function onRoute(r, opts = {}) {
   const prev = view.firstElementChild;
   if (prev && lastPath && TAB_ROOTS.has(lastPath)) router.saveScroll(lastPath, prev.scrollTop);
 
-  const el = await FNS[r.name](r.params);
+  let el;
+  try { el = await FNS[r.name](r.params); } catch (e) { el = errorScreen(e, () => router.refresh()); }
   clear(view).append(el);
-  const tab = r.name === 'detail' || r.name === 'list' ? lastTab : r.tab;
+  const hideTabs = r.name === 'detail' || r.name === 'list' || r.name === 'notfound';
+  const tab = hideTabs ? lastTab : r.tab;
   if (r.tab) lastTab = r.tab;
-  setTab(tab, r.name === 'detail' || r.name === 'list');
+  setTab(tab, hideTabs);
 
   if (TAB_ROOTS.has(r.path) || opts.keepScroll) {
     const top = router.getScroll(r.path);
@@ -118,13 +121,87 @@ async function handleOAuth() {
   return true;
 }
 
-// ---------- offline banner ----------
-function netBanner() {
+// ---------- offline strip (slim bar under the status area) ----------
+function netBar() {
+  const app = $('app');
+  let wasOffline = !navigator.onLine;
   const set = () => {
-    $('app').querySelector('.offline')?.remove();
-    if (!navigator.onLine) $('app').append(h('div', { class: 'offline', role: 'status' }, t('common.offline')));
+    app.querySelector('.netbar')?.remove();
+    const off = !navigator.onLine;
+    app.classList.toggle('has-offline', off);
+    if (off) app.append(h('div', { class: 'netbar', role: 'status' }, icon('wifioff', 14), t('common.offline')));
+    // Back online: re-run the screen if it is showing an error.
+    if (!off && wasOffline && $('view').querySelector('.empty, .errcard')) router.refresh();
+    wasOffline = off;
   };
   addEventListener('online', set); addEventListener('offline', set); set();
+}
+
+// ---------- first launch without internet: full-screen gate ----------
+function offlineGate() {
+  return new Promise(resolve => {
+    const circle = h('div', { class: 'circle' });
+    const title = h('h2', { class: 't-card' });
+    const text = h('p', { class: 't-cap muted' });
+    const btn = h('button', { class: 'btn primary', type: 'button', style: { marginTop: '8px' } }, t('common.retry'));
+    const el = h('div', { id: 'gate', class: 'empty', role: 'alert' }, circle, title, text, h('div', { class: 'err-actions' }, btn));
+    let busy = false;
+    const view = state => {
+      clear(circle).append(state === 'conn' ? h('span', { class: 'spinner' }) : icon('wifioff', 40));
+      title.textContent = t(state === 'conn' ? 'net.connecting' : 'net.title');
+      text.textContent = t(state === 'conn' ? 'net.connectingText' : 'net.text');
+      btn.disabled = state === 'conn';
+    };
+    const attempt = async () => {
+      if (busy) return; busy = true; view('conn');
+      const [, ok] = await Promise.all([sleep(900), navigator.onLine ? api.ping() : false]);
+      if (ok) { await Promise.race([prefetchHome(), sleep(4000)]); removeEventListener('online', attempt); el.remove(); busy = false; resolve(); return; }
+      busy = false; view('off');
+    };
+    btn.addEventListener('click', attempt); addEventListener('online', attempt);
+    view('off'); $('app').append(el);
+  });
+}
+
+// ---------- updates (service worker "waiting" -> ask the user) ----------
+let refreshing = false, prompting = false;
+function workerVersion(w) {
+  return new Promise(res => {
+    try { const ch = new MessageChannel(); ch.port1.onmessage = e => res(String(e.data || '').replace(/^anidex-v/, '')); w.postMessage('GET_VERSION', [ch.port2]); } catch { res(''); }
+    setTimeout(() => res(''), 800);
+  });
+}
+async function promptUpdate(w) {
+  if (prompting || sessionStorage.getItem('anidex:upd:later')) return;
+  prompting = true;
+  const v = await workerVersion(w);
+  const s = sheet(t('upd.title'),
+    v ? h('div', { class: 'vchip' }, `${APP_VERSION}  →  ${v}`) : null,
+    h('p', { class: 't-body muted' }, t('upd.text')),
+    h('button', { class: 'btn primary block', type: 'button', onclick: () => { s.close(); applyUpdate(w); } }, t('upd.now')),
+    h('button', { class: 'btn outline block', type: 'button', onclick: () => { sessionStorage.setItem('anidex:upd:later', '1'); s.close(); } }, t('upd.later')));
+}
+function applyUpdate(w) {
+  $('app').append(h('div', { id: 'updating', role: 'status' },
+    h('div', { class: 'logo-slot' }, logo(120, 14)), h('div', { class: 'name' }, 'Anidex'),
+    h('div', { class: 'bar' }, h('i')), h('div', { class: 'upd-text' }, t('upd.updating')), h('div', { class: 'credit' }, 'Data by AniList')));
+  sessionStorage.setItem('anidex:updated', '1');
+  refreshing = true;
+  w.postMessage('SKIP_WAITING');
+  setTimeout(() => location.reload(), 6000);   // safety net
+}
+async function setupSW() {
+  if (!('serviceWorker' in navigator) || !(location.protocol === 'https:' || location.hostname === 'localhost')) return;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (refreshing) location.reload(); });
+  try {
+    const reg = await navigator.serviceWorker.register('./sw.js');
+    const check = () => { if (reg.waiting && navigator.serviceWorker.controller) promptUpdate(reg.waiting); };
+    check();
+    reg.addEventListener('updatefound', () => { const nw = reg.installing; nw?.addEventListener('statechange', () => { if (nw.state === 'installed') check(); }); });
+    const poll = () => reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') poll(); });
+    setInterval(poll, 30 * 60 * 1000);
+  } catch { /* ignore */ }
 }
 
 // ---------- boot ----------
@@ -133,15 +210,15 @@ async function boot() {
   buildTabs();
   const splash = $('splash');
   splash.querySelector('.logo-slot').append(logo(120, 14));
+  const hideSplash = () => { splash.classList.add('out'); setTimeout(() => splash.remove(), 350); };
   const oauth = await handleOAuth();
   await Promise.race([Promise.all([sleep(800), prefetchHome()]), sleep(4000)]);
+  if (!api.hasCache() && (!navigator.onLine || !(await api.ping()))) { hideSplash(); await offlineGate(); }
+  else hideSplash();
   router.start();
-  netBanner();
-  splash.classList.add('out');
-  setTimeout(() => splash.remove(), 350);
-  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
+  netBar();
+  if (sessionStorage.getItem('anidex:updated')) { sessionStorage.removeItem('anidex:updated'); setTimeout(() => toast(t('upd.done', { v: APP_VERSION })), 700); }
+  setupSW();
   return oauth;
 }
 boot();

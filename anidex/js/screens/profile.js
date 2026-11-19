@@ -3,13 +3,14 @@ import { t } from '../i18n.js';
 import { store } from '../store.js';
 import { go } from '../router.js';
 import { APP_VERSION, ANILIST_CLIENT_ID } from '../config.js';
-import { navbar, sheet } from '../ui.js';
+import { navbar, sheet, toast } from '../ui.js';
 import { refresh } from '../router.js';
 import { notificationBell } from './profile-bell.js';
 
 const guestAvatar = size => h('div', { class: 'avatar' }, icon('user', size));
 
 function startLogin() {
+  if (!navigator.onLine) { toast(t('profile.loginNeedNet')); return; }
   if (!ANILIST_CLIENT_ID) {
     sheet(t('profile.loginSoon'), h('p', { class: 't-body muted' }, t('profile.loginSoonText')));
     return;

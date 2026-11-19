@@ -3,7 +3,7 @@ import { t, genreName, formatName, statusName, seasonName, sourceName } from '..
 import { store } from '../store.js';
 import { back } from '../router.js';
 import * as api from '../api.js';
-import { pcard, chip, sheet, toast, errorState, epsText, joinMeta } from '../ui.js';
+import { pcard, chip, sheet, modal, toast, errorState, epsText, joinMeta } from '../ui.js';
 
 export async function detail([id]) {
   const root = h('div', { class: 'screen detail no-tab' });
@@ -25,8 +25,8 @@ export async function detail([id]) {
       const m = await api.detail(id);
       store.pushHistory(m);
       fill(m);
-    } catch {
-      clear(body).append(errorState(load));
+    } catch (e) {
+      clear(body).append(errorState(load, false, e));
     }
   }
 
@@ -79,7 +79,8 @@ export async function detail([id]) {
     function renderActions() {
       clear(actions);
       actions.append(h('button', { class: 'btn primary block', type: 'button', onclick: () => whereSheet(m) }, t('detail.where')));
-      actions.append(h('button', { class: 'btn outline block', type: 'button', disabled: !m.trailer, onclick: () => trailerSheet(m) }, icon('play', 18, { fill: true }), m.trailer ? t('detail.trailer') : t('detail.noTrailer')));
+      const offline = !navigator.onLine;
+      actions.append(h('button', { class: 'btn outline block', type: 'button', disabled: !m.trailer || offline, onclick: () => trailerCard(m) }, icon('play', 18, { fill: true }), !m.trailer ? t('detail.noTrailer') : offline ? t('detail.trailerNeedNet') : t('detail.trailer')));
       if (store.isSaved(m.id)) {
         const st = store.savedStatus(m.id);
         actions.append(h('div', { class: 'seg', role: 'group' },
@@ -88,6 +89,8 @@ export async function detail([id]) {
       }
     }
     renderActions();
+    const onNet = () => { if (!root.isConnected) { removeEventListener('online', onNet); removeEventListener('offline', onNet); return; } renderActions(); };
+    addEventListener('online', onNet); addEventListener('offline', onNet);
 
     // info grid
     const cells = [
@@ -124,12 +127,16 @@ function whereSheet(m) {
   sheet(t('detail.whereTitle'), list, h('p', { class: 't-cap muted' }, t('detail.whereNote')));
 }
 
-function trailerSheet(m) {
+function trailerCard(m) {
   const tr = m.trailer; if (!tr) return;
   const id = encodeURIComponent(tr.id);
   const src = tr.site === 'youtube' ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`
     : tr.site === 'dailymotion' ? `https://www.dailymotion.com/embed/video/${id}?autoplay=1` : null;
   if (!src) return;
-  const s = sheet(t('detail.trailer'), h('div', { class: 'video' }, h('iframe', { src, title: m.title, allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' })));
-  return s;
+  return modal(close => h('div', { class: 'tcard', role: 'dialog', 'aria-modal': 'true', 'aria-label': t('detail.trailer') },
+    h('div', { class: 'tcard-head' },
+      h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 } },
+        h('div', { class: 't-card clamp1' }, m.title), h('div', { class: 't-cap muted' }, t('detail.trailerShort'))),
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': t('common.close'), onclick: close }, icon('close', 22))),
+    h('div', { class: 'video' }, h('iframe', { src, title: m.title, allow: 'autoplay; encrypted-media; picture-in-picture; fullscreen', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' }))));
 }

@@ -18,6 +18,13 @@ function lsSet(key, val) {
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// True when any API response is stored on this device (so the app can show something offline).
+export function hasCache() { try { return Object.keys(localStorage).some(k => k.startsWith(CP)); } catch { return false; } }
+// True when the API answers at all (any HTTP response). False only on network failure.
+export async function ping() {
+  try { await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: '{__typename}' }) }); return true; } catch { return false; }
+}
+
 export class ApiError extends Error { constructor(kind, msg) { super(msg || kind); this.kind = kind; } }
 
 async function post(query, variables, token, attempt = 0) {
@@ -36,7 +43,10 @@ async function post(query, variables, token, attempt = 0) {
   }
   let json = null;
   try { json = await res.json(); } catch { /* not json */ }
-  if (!res.ok || !json || json.errors) throw new ApiError(res.status === 429 ? 'rate' : 'api', json?.errors?.[0]?.message);
+  if (!res.ok || !json || json.errors) {
+    const kind = res.status === 429 ? 'rate' : res.status === 404 ? 'notfound' : res.status >= 500 ? 'server' : 'api';
+    throw new ApiError(kind, json?.errors?.[0]?.message);
+  }
   return json.data;
 }
 
@@ -125,7 +135,8 @@ export function cleanDescription(raw) {
 
 export async function detail(id) {
   const d = await gql(DETAIL_Q, { id: Number(id) }, { ttl: 180 });
-  const m = d.Media; const base = norm(m);
+  const m = d.Media; if (!m) throw new ApiError('notfound');
+  const base = norm(m);
   return {
     ...base,
     banner: m.bannerImage || null,

@@ -40,6 +40,9 @@ const P = {
   play: '<path d="M7 4.5v15l12-7.5z"/>',
   ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
   wifi: '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/>',
+  wifioff: '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/><path d="M3 3l18 18"/>',
+  warn: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  searchx: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M9 9l4 4M13 9l-4 4"/>',
   alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.5"/>',
 };
 export function icon(name, size = 24, { fill = false, sw = 1.8 } = {}) {
@@ -61,7 +64,7 @@ export function img(src, alt = '', color) {
   const el = document.createElement('img');
   el.alt = alt; el.loading = 'lazy'; el.decoding = 'async'; el.referrerPolicy = 'no-referrer';
   el.addEventListener('load', () => el.classList.add('loaded'));
-  el.addEventListener('error', () => { el.style.display = 'none'; });
+  el.addEventListener('error', () => { el.style.display = 'none'; el.parentNode?.classList.add('noimg'); });
   if (src) el.src = src;
   if (color) el.parentNode && (el.parentNode.style.background = color);
   return el;

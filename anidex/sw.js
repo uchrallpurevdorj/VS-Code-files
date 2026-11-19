@@ -1,5 +1,5 @@
 // Anidex service worker: offline app shell. API data is cached by the app (localStorage), images by the HTTP cache.
-const VERSION = 'anidex-v1.0.0';
+const VERSION = 'anidex-v1.1.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/styles.css',
   'js/app.js', 'js/api.js', 'js/config.js', 'js/dom.js', 'js/i18n.js', 'js/router.js', 'js/store.js', 'js/ui.js',
@@ -11,7 +11,11 @@ const SHELL = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)));      // no skipWaiting: the app asks the user first
+});
+self.addEventListener('message', e => {
+  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data === 'GET_VERSION' && e.ports[0]) e.ports[0].postMessage(VERSION);
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));

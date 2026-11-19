@@ -12,6 +12,7 @@ export function parse(hash = location.hash) {
     const m = path.match(r.re);
     if (m) return { name: r.name, params: m.slice(1).map(decodeURIComponent), path, tab: r.tab, sub: !!r.sub };
   }
+  if (path && path !== '/' && path !== '/home') return { name: 'notfound', params: [], path, tab: null };
   return { name: 'home', params: [], path: '/home', tab: 'home' };
 }
 export function go(path, { replace = false } = {}) {

@@ -45,7 +45,7 @@ export async function home() {
       const r = c.key === 'home' ? await api.trending({ perPage: 10 }) : await api.popularBy({ genre: c.genre, tag: c.tag }, { perPage: 10 });
       if (mine !== selected) return;
       clear(mainSec).append(sectionHead(title, t('home.seeAll'), see), h('div', { class: 'carousel' }, r.items.map(i => pcard(i))));
-    } catch { if (mine === selected) clear(mainSec).append(sectionHead(title), errorState(loadMain, true)); }
+    } catch (e) { if (mine === selected) clear(mainSec).append(sectionHead(title), errorState(loadMain, true, e)); }
   }
   loadMain();
 
@@ -58,7 +58,7 @@ export async function home() {
     try {
       const items = await api.random(8);
       clear(randSec).append(h('div', { class: 'section-head' }, h('h2', { class: 't-section' }, t('home.random')), shuffleBtn()), h('div', { class: 'carousel' }, items.map(i => pcard(i))));
-    } catch { clear(randSec).append(sectionHead(t('home.random')), errorState(loadRandom, true)); }
+    } catch (e) { clear(randSec).append(sectionHead(t('home.random')), errorState(loadRandom, true, e)); }
   }
   loadRandom();
 
@@ -70,7 +70,7 @@ export async function home() {
     try {
       const r = await api.newSeason({ perPage: 6 });
       clear(seasonSec).append(sectionHead(t('home.newSeason'), t('home.seeAll'), () => go('/list/season')), h('div', { class: 'stack' }, r.items.map(arow)));
-    } catch { clear(seasonSec).append(sectionHead(t('home.newSeason')), errorState(loadSeason, true)); }
+    } catch (e) { clear(seasonSec).append(sectionHead(t('home.newSeason')), errorState(loadSeason, true, e)); }
   }
   loadSeason();
   return root;

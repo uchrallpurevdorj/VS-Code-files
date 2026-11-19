@@ -34,7 +34,7 @@ export function listScreen([kind, key]) {
       clear(status);
       r.items.forEach(i => grid.append(pcard(i)));
       more.hidden = !r.hasNext; pageNo++;
-    } catch { clear(status).append(errorState(() => { busy = false; load(); }, true)); }
+    } catch (e) { clear(status).append(errorState(() => { busy = false; load(); }, true, e)); }
     busy = false;
   }
   more.addEventListener('click', load);
