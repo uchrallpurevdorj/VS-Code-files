@@ -1,48 +1,31 @@
 <!doctype html>
-<html lang="mn" data-theme="dark">
+<html lang="mn">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Animore</title>
-  <meta name="description" content="Animore — аниме мэдээлэл, тренд, шинэ улирал. Data by AniList.">
-  <meta name="theme-color" content="#141414">
-  <meta name="color-scheme" content="dark light">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Animore">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="preload" href="fonts/inter-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/inter-cyrillic-700-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://graphql.anilist.co" crossorigin>
-  <link rel="preconnect" href="https://s4.anilist.co" crossorigin>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta name="robots" content="noindex">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
-    // One-time move of data saved under the old app name (Anidex); old caches are dropped.
-    try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('anidex:v1:') !== 0) return; var n = 'animore:v1:' + k.slice(10); if (!/^anidex:v1:(c|tr):/.test(k) && localStorage.getItem(n) === null) localStorage.setItem(n, localStorage.getItem(k)); localStorage.removeItem(k); }); } catch (e) {}
-    // Apply saved theme before first paint (no flash).
-    try {
-      var s = JSON.parse(localStorage.getItem('animore:v1:settings') || '{}');
-      var th = s.theme === 'light' ? 'light' : s.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 'dark';
-      document.documentElement.dataset.theme = th;
-    } catch (e) {}
+    // Animore moved to animore.studio. Carry the saved list and settings over once (auth token is NOT sent: sign in again, the list syncs back).
+    (function () {
+      var h = location.hash, q = location.search, data = {};
+      try {
+        Object.keys(localStorage).forEach(function (k) {
+          var n = k.indexOf('anidex:v1:') === 0 ? 'animore:v1:' + k.slice(10) : k;      // very old Anidex data -> Animore keys
+          if (n.indexOf('animore:v1:') !== 0 || /:(auth|c:|tr:)/.test(n)) return;
+          if (!(n in data) || n === k) data[n] = localStorage.getItem(k);
+        });
+      } catch (e) {}
+      var url = 'https://animore.studio/' + q;
+      if (/^#access_token=/.test(h)) url += '';           // a sign-in that finished here cannot be completed on the new address
+      else if (Object.keys(data).length) url += '#migrate=' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(data)))));
+      else url += h;
+      location.replace(url);
+    })();
   </script>
+  <meta http-equiv="refresh" content="2; url=https://animore.studio/">
 </head>
-<body>
-  <div id="app">
-    <main id="view" aria-live="polite"></main>
-    <div id="bottom-fade" aria-hidden="true"></div>
-    <nav id="tabbar" aria-label="Main"></nav>
-    <div id="splash" role="status" aria-label="Loading">
-      <div class="logo-slot"></div>
-      <div class="name">Animore</div>
-      <div class="bar"><i></i></div>
-      <div class="credit">Data by AniList</div>
-    </div>
-    <noscript><p style="padding:24px">Animore requires JavaScript.</p></noscript>
-  </div>
-  <script type="module" src="js/app.js"></script>
+<body style="background:#141414;color:#f5f5f5;font-family:system-ui,sans-serif;padding:24px">
+  <p>Animore moved to <a href="https://animore.studio/" style="color:#ff5a5a">animore.studio</a>.</p>
 </body>
 </html>
